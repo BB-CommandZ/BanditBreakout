@@ -1,14 +1,17 @@
 import Player from "./Player"
 import Map from "../Map/Map"
 import Move from "./Movement"
+import { Settings } from "../Types/Settings";
 
 export default class Game {
     players: Player[]
     map: Map
+    settings: Settings
 
     constructor() {
         this.players = []
         this.map = new Map()
+        this.settings = new Settings()
     }
     
     public startGame(playerCount: number, game_id: string): void {
