@@ -1,5 +1,6 @@
 import Tile from "./Tile";
 import Game from "./Game";
+import Item from "./Item"; 
 // IEvent interface, defining the structure of an event
 
 
@@ -63,12 +64,10 @@ export class BattleEvent implements IEvent {
     effect = "Start a battle!";
     tile: Tile;
 
-    constructor(tile: Tile) {
-        this.tile = tile;
-    }
+    constructor(tile: Tile) { this.tile = tile; }
 
     public onStep(playerId: number, game: Game): void {
-        console.log(`Player ${playerId} stepped on ${this.tile.index}`); 
+        console.log(`Player ${playerId} stepped on ${this.tile.index} (Battle event not yet implemented)`); 
     }
 }
 
@@ -80,12 +79,14 @@ export class BattleEffectEvent implements IEvent {
     effect = "Gain a battle buff for your next battle.";
     tile: Tile;
 
-    constructor(tile: Tile) {
-        this.tile = tile;
-    }
+    constructor(tile: Tile) { this.tile = tile; }
 
     public onStep(playerId: number, game: Game): void {
-        console.log(`Player ${playerId} stepped on ${this.tile.index}`); 
+        const player = game.players.find(player => player.id === playerId);
+        if (player) {
+            player.effectAdd("battle_buff");
+            console.log(`Player ${playerId} gained a battle buff!`);
+        }
     }
 }
 
@@ -97,12 +98,16 @@ export class ItemEvent implements IEvent {
     effect = "Receive a random item.";
     tile: Tile;
 
-    constructor(tile: Tile) {
-        this.tile = tile;
-    }
+    constructor(tile: Tile) { this.tile = tile; }
 
     public onStep(playerId: number, game: Game): void {
-        console.log(`Player ${playerId} stepped on ${this.tile.index}`); 
+        const player = game.players.find(player => player.id === playerId);
+        if (player) {
+            // Give a simple item for now (expand later)
+            const item = new Item(1, "Lucky Coin", "A shiny coin. Maybe it's lucky?", "Increase gold gain.", false);
+            player.inventoryAdd(item);
+            console.log(`Player ${playerId} found an item: ${item.name}`);
+        }
     }
 }
 
@@ -114,12 +119,10 @@ export class StoryEvent implements IEvent {
     effect = "Something interesting happens!";
     tile: Tile;
 
-    constructor(tile: Tile) {
-        this.tile = tile;
-    }
+    constructor(tile: Tile) { this.tile = tile; }
 
     public onStep(playerId: number, game: Game): void {
-        console.log(`Player ${playerId} stepped on ${this.tile.index}`); 
+        console.log(`Player ${playerId} stepped on ${this.tile.index} (Story event not yet implemented)`); 
     }
 }
 
@@ -131,12 +134,15 @@ export class SlotsEvent implements IEvent {
     effect = "Gain or lose a random amount of gold.";
     tile: Tile;
 
-    constructor(tile: Tile) {
-        this.tile = tile;
-    }
+    constructor(tile: Tile) { this.tile = tile; }
 
     public onStep(playerId: number, game: Game): void {
-        console.log(`Player ${playerId} stepped on ${this.tile.index}`); 
+        const player = game.players.find(player => player.id === playerId);
+        if (player) {
+            const amount = Math.floor(Math.random() * 11) - 5; // -5 to +5
+            player.gold(amount >= 0 ? `+${amount}` : `${amount}`);
+            console.log(`Player ${playerId} played slots and ${amount >= 0 ? 'won' : 'lost'} ${Math.abs(amount)} gold.`);
+        }
     }
 }
 
@@ -148,12 +154,15 @@ export class MiningEvent implements IEvent {
     effect = "Gain a random amount of gold.";
     tile: Tile;
 
-    constructor(tile: Tile) {
-        this.tile = tile;
-    }
+    constructor(tile: Tile) { this.tile = tile; }
 
     public onStep(playerId: number, game: Game): void {
-        console.log(`Player ${playerId} stepped on ${this.tile.index}`); 
+        const player = game.players.find(player => player.id === playerId);
+        if (player) {
+            const gold = Math.floor(Math.random() * 6) + 5; // 5-10 gold
+            player.gold(`+${gold}`);
+            console.log(`Player ${playerId} mined and gained ${gold} gold.`);
+        }
     }
 }
 
@@ -165,12 +174,10 @@ export class DecisionEvent implements IEvent {
     effect = "Make a choice that affects your path.";
     tile: Tile;
 
-    constructor(tile: Tile) {
-        this.tile = tile;
-    }
+    constructor(tile: Tile) { this.tile = tile; }
 
     public onStep(playerId: number, game: Game): void {
-        console.log(`Player ${playerId} stepped on ${this.tile.index}`); 
+        console.log(`Player ${playerId} stepped on ${this.tile.index} (Decision event not yet implemented)`); 
     }
 }
 
