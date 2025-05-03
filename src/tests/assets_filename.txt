@@ -1,0 +1,354 @@
+Filenames:
+  - battle/victory.png
+  - battle/background.png
+  - battle/health bar/backing.svg
+  - battle/health bar/health bar.svg
+  - battle/defeat.png
+  - Loading Screen.mp4
+  - dogend.mp4
+  - Intro screens/background/cactus.png
+  - Intro screens/background/background.png
+  - Intro screens/background/grass.png
+  - Intro screens/background/sky.png
+  - Intro screens/background/mid-ground.png
+  - Intro screens/background/foreground.png
+  - Intro screens/character select/backing.png
+  - Intro screens/character select/frame.png
+  - Intro screens/character select/page.png
+  - Intro screens/host/lobby.png
+  - Intro screens/host/code.png
+  - Intro screens/host/title background.png
+  - Intro screens/host/post.png
+  - Intro screens/host/numbers.png
+  - Intro screens/host/start.png
+  - Intro screens/join/title background.png
+  - Intro screens/join/post.png
+  - Intro screens/join/lower sign.png
+  - Intro screens/join/upper sign.png
+  - Intro screens/title/quit.png
+  - Intro screens/title/title background.png
+  - Intro screens/title/title card.png
+  - Intro screens/title/pole.png
+  - Intro screens/title/options.png
+  - Intro screens/title/start.png
+  - cutscenes + events/intro cutscene/walking in/photo assets/side table/side table - right.png
+  - cutscenes + events/intro cutscene/walking in/photo assets/side table/front barrel - right.png
+  - cutscenes + events/intro cutscene/walking in/photo assets/side table/back barrel - right.png
+  - cutscenes + events/intro cutscene/walking in/photo assets/side table/mid barrel - right.png
+  - cutscenes + events/intro cutscene/walking in/photo assets/main table/main table.png
+  - cutscenes + events/intro cutscene/walking in/photo assets/main table/right barrel.png
+  - cutscenes + events/intro cutscene/walking in/photo assets/main table/front 2 barrels.png
+  - cutscenes + events/intro cutscene/walking in/photo assets/main table/back barrel.png
+  - cutscenes + events/intro cutscene/walking in/photo assets/main table/left barrel.png
+  - cutscenes + events/intro cutscene/walking in/photo assets/rug.png
+  - cutscenes + events/intro cutscene/walking in/photo assets/cabinet.png
+  - cutscenes + events/intro cutscene/walking in/photo assets/walls.png
+  - cutscenes + events/intro cutscene/walking in/photo assets/light.png
+  - cutscenes + events/intro cutscene/walking in/photo assets/roof.png
+  - cutscenes + events/intro cutscene/walking in/photo assets/back table.png
+  - cutscenes + events/intro cutscene/walking in/photo assets/floor.png
+  - cutscenes + events/intro cutscene/walking in/photo assets/stairs.png
+  - cutscenes + events/intro cutscene/walking in/photo assets/bar.png
+  - cutscenes + events/intro cutscene/overhead view/photo assets/rug.png
+  - cutscenes + events/intro cutscene/overhead view/photo assets/tables.png
+  - cutscenes + events/intro cutscene/overhead view/photo assets/floor.png
+  - cutscenes + events/intro cutscene/opening desert/photo assets/clouds.png
+  - cutscenes + events/intro cutscene/opening desert/photo assets/background sand.png
+  - cutscenes + events/intro cutscene/opening desert/photo assets/sky.png
+  - cutscenes + events/intro cutscene/opening desert/photo assets/footprints.png
+  - cutscenes + events/intro cutscene/opening desert/photo assets/sun.png
+  - cutscenes + events/intro cutscene/opening desert/photo assets/foreground.png
+  - battle effects/boots.png
+  - battle effects/sunscreen.png
+  - battle effects/cactus.png
+  - battle effects/hp.png
+  - battle effects/revolver.png
+  - SFX/slotmachine.mp3
+  - SFX/tumbleweed.mp3
+  - SFX/dice.mp3
+  - SFX/Page Turn Sound Effect! Flip Sound Effect!.mp3
+  - SFX/money.mp3
+  - SFX/wind.mp3
+  - SFX/crow.mp3
+  - SFX/gun.mp3
+  - SFX/wood.mp3
+  - SFX/turn_start.mp3
+  - SFX/casino.mp3
+  - SFX/item_get.mp3
+  - dice/dice3.mp4
+  - dice/dice2.mp4
+  - dice/dice1.mp4
+  - dice/dice5.mp4
+  - dice/dice4.mp4
+  - dice/dice6.mp4
+  - Logos/CMD Z Logo.svg
+  - Logos/Bandit Logo Circle.svg
+  - Logos/Bandit Base Logo.svg
+  - Item Cards/crossbow text.svg
+  - Item Cards/staff text.svg
+  - Item Cards/vs text.svg
+  - Item Cards/teleporter zoom.svg
+  - Item Cards/shovel text.svg
+  - Item Cards/carpet text.svg
+  - Item Cards/vest zoom.svg
+  - Item Cards/coffin with text.svg
+  - Item Cards/lasso text.svg
+  - Item Cards/tumbleweed text.svg
+  - Item Cards/dice zoom.svg
+  - Item Cards/Coffin zoom.svg
+  - Item Cards/carpet zoom.svg
+  - Item Cards/shovel zoom.svg
+  - Item Cards/vest text.svg
+  - Item Cards/lasso zoom.svg
+  - Item Cards/tumbleweed zoom.svg
+  - Item Cards/dice text.svg
+  - Item Cards/crossbow zoom.svg
+  - Item Cards/staff zoom.svg
+  - Item Cards/vs zoom.svg
+  - Item Cards/teleporter text.svg
+  - Board assets/Sound.svg
+  - Board assets/bridge.png
+  - Board assets/settings.svg
+  - Board assets/speed up.svg
+  - Board assets/board background.png
+  - Board assets/Game Board.svg
+  - Board assets/Silder.svg
+  - Board assets/Mute.svg
+  - Board assets/rules (2).svg
+  - Board assets/pause.svg
+  - Board assets/Artboard 1.svg
+  - Intro_music.mp3
+  - edited + cut voice lines/NPCs/sheep/12.wav
+  - edited + cut voice lines/NPCs/sheep/9.wav
+  - edited + cut voice lines/NPCs/sheep/8.wav
+  - edited + cut voice lines/NPCs/sheep/7.wav
+  - edited + cut voice lines/NPCs/sheep/5.wav
+  - edited + cut voice lines/NPCs/sheep/4.wav
+  - edited + cut voice lines/NPCs/sheep/1.wav
+  - edited + cut voice lines/NPCs/sheep/3.wav
+  - edited + cut voice lines/NPCs/sheep/2.wav
+  - edited + cut voice lines/NPCs/tiger/6.wav
+  - edited + cut voice lines/NPCs/tiger/7.wav
+  - edited + cut voice lines/NPCs/tiger/4.wav
+  - edited + cut voice lines/NPCs/tiger/1.wav
+  - edited + cut voice lines/NPCs/tiger/3.wav
+  - edited + cut voice lines/NPCs/tiger/2.wav
+  - edited + cut voice lines/NPCs/Ferret/9.wav
+  - edited + cut voice lines/NPCs/Ferret/8.wav
+  - edited + cut voice lines/NPCs/Ferret/7.wav
+  - edited + cut voice lines/NPCs/Ferret/5.wav
+  - edited + cut voice lines/NPCs/Ferret/4.wav
+  - edited + cut voice lines/NPCs/Ferret/1.wav
+  - edited + cut voice lines/NPCs/Ferret/3.wav
+  - edited + cut voice lines/NPCs/Ferret/2.wav
+  - edited + cut voice lines/NPCs/villain/pant.wav
+  - edited + cut voice lines/NPCs/villain/scream.wav
+  - edited + cut voice lines/NPCs/villain/sure.wav
+  - edited + cut voice lines/NPCs/villain/mercy.wav
+  - edited + cut voice lines/NPCs/villain/huh.wav
+  - edited + cut voice lines/NPCs/villain/leavenmealone.wav
+  - edited + cut voice lines/NPCs/villain/what.wav
+  - edited + cut voice lines/NPCs/villain/plz.wav
+  - edited + cut voice lines/NPCs/villain/spareme.wav
+  - edited + cut voice lines/NPCs/villain/o-oh.wav
+  - edited + cut voice lines/NPCs/Borzoi/4.wav
+  - edited + cut voice lines/NPCs/Borzoi/1.wav
+  - edited + cut voice lines/NPCs/Borzoi/3.wav
+  - edited + cut voice lines/NPCs/Borzoi/2.wav
+  - edited + cut voice lines/NPCs/frog/wtf.wav
+  - edited + cut voice lines/NPCs/frog/8.wav
+  - edited + cut voice lines/NPCs/frog/6.wav
+  - edited + cut voice lines/NPCs/frog/bulletgungun.wav
+  - edited + cut voice lines/NPCs/frog/7.wav
+  - edited + cut voice lines/NPCs/frog/5.wav
+  - edited + cut voice lines/NPCs/frog/4.wav
+  - edited + cut voice lines/NPCs/frog/1.wav
+  - edited + cut voice lines/NPCs/frog/3.wav
+  - edited + cut voice lines/NPCs/frog/2.wav
+  - edited + cut voice lines/NPCs/frog/attack1.wav
+  - edited + cut voice lines/NPCs/frog/attack2.wav
+  - edited + cut voice lines/NPCs/prarie/1.wav
+  - edited + cut voice lines/NPCs/prarie/2.wav
+  - edited + cut voice lines/NPCs/Giraffeeee/10.wav
+  - edited + cut voice lines/NPCs/Giraffeeee/11.wav
+  - edited + cut voice lines/NPCs/Giraffeeee/13.wav
+  - edited + cut voice lines/NPCs/Giraffeeee/12.wav
+  - edited + cut voice lines/NPCs/Giraffeeee/9.wav
+  - edited + cut voice lines/NPCs/Giraffeeee/8.wav
+  - edited + cut voice lines/NPCs/Giraffeeee/6.wav
+  - edited + cut voice lines/NPCs/Giraffeeee/7.wav
+  - edited + cut voice lines/NPCs/Giraffeeee/5.wav
+  - edited + cut voice lines/NPCs/Giraffeeee/4.wav
+  - edited + cut voice lines/NPCs/Giraffeeee/1.wav
+  - edited + cut voice lines/NPCs/Giraffeeee/3.wav
+  - edited + cut voice lines/NPCs/Giraffeeee/2.wav
+  - edited + cut voice lines/Serpy/specific/argue.wav
+  - edited + cut voice lines/Serpy/specific/characterselect1.wav
+  - edited + cut voice lines/Serpy/specific/characterselect2.wav
+  - edited + cut voice lines/Serpy/specific/capyspace.wav
+  - edited + cut voice lines/Serpy/specific/ehhhh.wav
+  - edited + cut voice lines/Serpy/specific/end3.wav
+  - edited + cut voice lines/Serpy/specific/hIIIspace.wav
+  - edited + cut voice lines/Serpy/specific/ermm.wav
+  - edited + cut voice lines/Serpy/specific/end2.wav
+  - edited + cut voice lines/Serpy/specific/end1.wav
+  - edited + cut voice lines/Serpy/specific/end5.wav
+  - edited + cut voice lines/Serpy/specific/oh.wav
+  - edited + cut voice lines/Serpy/specific/huh_.wav
+  - edited + cut voice lines/Serpy/specific/end6.wav
+  - edited + cut voice lines/Serpy/specific/NO.wav
+  - edited + cut voice lines/Serpy/specific/ssss.wav
+  - edited + cut voice lines/Serpy/specific/hmmm.wav
+  - edited + cut voice lines/Serpy/specific/yeaH.wav
+  - edited + cut voice lines/Serpy/general/sigh.wav
+  - edited + cut voice lines/Serpy/general/lost.wav
+  - edited + cut voice lines/Serpy/general/owwww.wav
+  - edited + cut voice lines/Serpy/general/wonbattle.wav
+  - edited + cut voice lines/Serpy/general/move.wav
+  - edited + cut voice lines/Serpy/general/aww.wav
+  - edited + cut voice lines/Serpy/general/abrgy.wav
+  - edited + cut voice lines/Serpy/general/upseet.wav
+  - edited + cut voice lines/Serpy/general/yay.wav
+  - edited + cut voice lines/Serpy/general/grossedout.wav
+  - edited + cut voice lines/Serpy/general/happywinwav.wav
+  - edited + cut voice lines/Serpy/general/awwwwloist.wav
+  - edited + cut voice lines/Serpy/general/aw.wav
+  - edited + cut voice lines/Serpy/general/nice.wav
+  - edited + cut voice lines/Serpy/general/veryhappywinner.wav
+  - edited + cut voice lines/Serpy/general/attack.wav
+  - edited + cut voice lines/Serpy/general/dead.wav
+  - edited + cut voice lines/solstice/specific/characterselect1.wav
+  - edited + cut voice lines/solstice/specific/catspace.wav
+  - edited + cut voice lines/solstice/specific/hey.wav
+  - edited + cut voice lines/solstice/specific/yeahh.wav
+  - edited + cut voice lines/solstice/specific/first1.wav
+  - edited + cut voice lines/solstice/specific/space.wav
+  - edited + cut voice lines/solstice/specific/no.wav
+  - edited + cut voice lines/solstice/specific/final1.wav
+  - edited + cut voice lines/solstice/specific/final2.wav
+  - edited + cut voice lines/solstice/specific/hmmm.wav
+  - edited + cut voice lines/solstice/general/hurt.wav
+  - edited + cut voice lines/solstice/general/sigh.wav
+  - edited + cut voice lines/solstice/general/win.wav
+  - edited + cut voice lines/solstice/general/move.wav
+  - edited + cut voice lines/solstice/general/excited.wav
+  - edited + cut voice lines/solstice/general/wonthegame.wav
+  - edited + cut voice lines/solstice/general/uppset.wav
+  - edited + cut voice lines/solstice/general/grossedout.wav
+  - edited + cut voice lines/solstice/general/aw.wav
+  - edited + cut voice lines/solstice/general/defeated.wav
+  - edited + cut voice lines/solstice/general/lostthegame.wav
+  - edited + cut voice lines/solstice/general/winbattle.wav
+  - edited + cut voice lines/solstice/general/angry.wav
+  - edited + cut voice lines/solstice/general/attack.wav
+  - edited + cut voice lines/solstice/general/dead.wav
+  - edited + cut voice lines/Grit/Grit Specific/heythere.wav
+  - edited + cut voice lines/Grit/Grit Specific/goodchoice.wav
+  - edited + cut voice lines/Grit/Grit Specific/scene1sigh.wav
+  - edited + cut voice lines/Grit/Grit Specific/scene1listenup.wav
+  - edited + cut voice lines/Grit/Grit Specific/struggling.wav
+  - edited + cut voice lines/Grit/Grit Specific/letsgo.wav
+  - edited + cut voice lines/Grit/Grit Specific/oh.wav
+  - edited + cut voice lines/Grit/Grit Specific/imwatching.wav
+  - edited + cut voice lines/Grit/Grit Specific/no.wav
+  - edited + cut voice lines/Grit/Grit Specific/sure.wav
+  - edited + cut voice lines/Grit/Grit Specific/sighs.wav
+  - edited + cut voice lines/Grit/Grit Specific/withmenow.wav
+  - edited + cut voice lines/Grit/Grit Specific/hmmm.wav
+  - edited + cut voice lines/Grit/Grit Specific/heybuddy.wav
+  - edited + cut voice lines/Grit/Grit Specific/firstscenesigh.wav
+  - edited + cut voice lines/Grit/Grit Specific/come.wav
+  - edited + cut voice lines/Grit/Grit General/hurt.wav
+  - edited + cut voice lines/Grit/Grit General/sigh.wav
+  - edited + cut voice lines/Grit/Grit General/lost.wav
+  - edited + cut voice lines/Grit/Grit General/move.wav
+  - edited + cut voice lines/Grit/Grit General/excited.wav
+  - edited + cut voice lines/Grit/Grit General/happy.wav
+  - edited + cut voice lines/Grit/Grit General/yay.wav
+  - edited + cut voice lines/Grit/Grit General/sad.wav
+  - edited + cut voice lines/Grit/Grit General/winner.wav
+  - edited + cut voice lines/Grit/Grit General/MADGROWLSAAA.wav
+  - edited + cut voice lines/Grit/Grit General/grossed out.wav
+  - edited + cut voice lines/Grit/Grit General/dissapointed.wav
+  - edited + cut voice lines/Grit/Grit General/attack.wav
+  - edited + cut voice lines/Grit/Grit General/dead.wav
+  - edited + cut voice lines/Scout/specific/argue.wav
+  - edited + cut voice lines/Scout/specific/characterselect1.wav
+  - edited + cut voice lines/Scout/specific/catspace.wav
+  - edited + cut voice lines/Scout/specific/characterselect2.wav
+  - edited + cut voice lines/Scout/specific/yikes.wav
+  - edited + cut voice lines/Scout/specific/end3.wav
+  - edited + cut voice lines/Scout/specific/tile.wav
+  - edited + cut voice lines/Scout/specific/errrr.wav
+  - edited + cut voice lines/Scout/specific/end2.wav
+  - edited + cut voice lines/Scout/specific/end1.wav
+  - edited + cut voice lines/Scout/specific/end5.wav
+  - edited + cut voice lines/Scout/specific/growl.wav
+  - edited + cut voice lines/Scout/specific/oh.wav
+  - edited + cut voice lines/Scout/specific/nahhjh.wav
+  - edited + cut voice lines/Scout/specific/yeah.wav
+  - edited + cut voice lines/Scout/general/hurt.wav
+  - edited + cut voice lines/Scout/general/sigh.wav
+  - edited + cut voice lines/Scout/general/confused.wav
+  - edited + cut voice lines/Scout/general/move.wav
+  - edited + cut voice lines/Scout/general/excited.wav
+  - edited + cut voice lines/Scout/general/saddefeated.wav
+  - edited + cut voice lines/Scout/general/wonthegame.wav
+  - edited + cut voice lines/Scout/general/yay.wav
+  - edited + cut voice lines/Scout/general/grossedout.wav
+  - edited + cut voice lines/Scout/general/aw.wav
+  - edited + cut voice lines/Scout/general/lostthegame.wav
+  - edited + cut voice lines/Scout/general/angry.wav
+  - edited + cut voice lines/Scout/general/attack.wav
+  - edited + cut voice lines/Scout/general/winnoise.wav
+  - edited + cut voice lines/Scout/general/dead.wav
+  - edited + cut voice lines/Buckshot/specific/characterselect1.wav
+  - edited + cut voice lines/Buckshot/specific/characterselect2.wav
+  - edited + cut voice lines/Buckshot/specific/firstscene2.wav
+  - edited + cut voice lines/Buckshot/specific/eugh.wav
+  - edited + cut voice lines/Buckshot/specific/dogtile.wav
+  - edited + cut voice lines/Buckshot/specific/oh.wav
+  - edited + cut voice lines/Buckshot/specific/no.wav
+  - edited + cut voice lines/Buckshot/specific/ohhhhscene1.wav
+  - edited + cut voice lines/Buckshot/specific/final1.wav
+  - edited + cut voice lines/Buckshot/specific/final3.wav
+  - edited + cut voice lines/Buckshot/specific/final2.wav
+  - edited + cut voice lines/Buckshot/specific/final5.wav
+  - edited + cut voice lines/Buckshot/specific/final4.wav
+  - edited + cut voice lines/Buckshot/specific/uhhhh.wav
+  - edited + cut voice lines/Buckshot/specific/landontilewithsomeone.wav
+  - edited + cut voice lines/Buckshot/specific/firstscene.wav
+  - edited + cut voice lines/Buckshot/specific/yeah.wav
+  - edited + cut voice lines/Buckshot/general/sigh.wav
+  - edited + cut voice lines/Buckshot/general/move.wav
+  - edited + cut voice lines/Buckshot/general/excited.wav
+  - edited + cut voice lines/Buckshot/general/wonnnthegame.wav
+  - edited + cut voice lines/Buckshot/general/angry1.wav
+  - edited + cut voice lines/Buckshot/general/angry2.wav
+  - edited + cut voice lines/Buckshot/general/awww.wav
+  - edited + cut voice lines/Buckshot/general/yay.wav
+  - edited + cut voice lines/Buckshot/general/ewgross.wav
+  - edited + cut voice lines/Buckshot/general/lostnoise.wav
+  - edited + cut voice lines/Buckshot/general/lostthegame.wav
+  - edited + cut voice lines/Buckshot/general/what.wav
+  - edited + cut voice lines/Buckshot/general/hurtnoise.wav
+  - edited + cut voice lines/Buckshot/general/attack.wav
+  - edited + cut voice lines/Buckshot/general/winnoise.wav
+  - edited + cut voice lines/Buckshot/general/dead.wav
+  - overlays-menus/board tiles for legend/slots.svg
+  - overlays-menus/board tiles for legend/safe.svg
+  - overlays-menus/board tiles for legend/effect.svg
+  - overlays-menus/board tiles for legend/event.svg
+  - overlays-menus/board tiles for legend/battle.svg
+  - overlays-menus/board tiles for legend/item.svg
+  - overlays-menus/player overlay/banner.svg
+  - overlays-menus/player overlay/backing.svg
+  - overlays-menus/player overlay/coin icon.png
+  - overlays-menus/player overlay/frame.svg
+  - overlays-menus/player overlay/board.svg
+
+Atlas atlas-xnsupc-shard-0 [primary] game_assets> 
+🎥 Files in GridFS Bucket (assets_fs):
+2025-05-02T06:52:59.645-0700    connected to: mongodb+srv://[**REDACTED**]@cluster0.lu45a.mongodb.net/game_assets
+cutscenes + events/fullcutscene1NOVA.mp4        38405366
+fullcutscenewithaudio.mp4       38439815
