@@ -1,5 +1,3 @@
-import { GroupLogo } from "./scenes/Group-Logo";
-import { Logo } from "./scenes/Logo";
 import { Start } from "./scenes/Start";
 
 const config = {
@@ -11,7 +9,7 @@ const config = {
   height: 720,
   backgroundColor: "#000000",
   pixelArt: false,
-  scene: [Start, GroupLogo, Logo],
+  scene: [Start],
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
