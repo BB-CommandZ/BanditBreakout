@@ -1,0 +1,24 @@
+{
+  "name": "phaser-game",
+  "version": "1.0.0",
+  "main": "phaser.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack serve --mode development"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "file-loader": "^6.2.0",
+    "live-server": "^1.2.2",
+    "phaser": "^3.88.2",
+    "svg-url-loader": "^8.0.0",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.3",
+    "webpack": "^5.99.7",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.1"
+  }
+}
