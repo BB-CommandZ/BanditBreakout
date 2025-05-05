@@ -18,18 +18,18 @@ export class Start extends Phaser.Scene {
 
   create() {
 
-    this.backgroundBlack = this.add.image(640, 360, "backgroundBlack");
+    this.backgroundBlack = this.add.image(960, 540, "backgroundBlack");
     this.backgroundBlack.setOrigin(0.5);
     
-    this.backgroundWhite = this.add.image(640, 360, "backgroundWhite");
+    this.backgroundWhite = this.add.image(960, 540, "backgroundWhite");
     this.backgroundWhite.setOrigin(0.5);
     this.backgroundWhite.setAlpha(0);
     
-    this.logoTeam = this.add.image(640, 360, "logoTeam");
+    this.logoTeam = this.add.image(960, 540, "logoTeam");
     this.logoTeam.setOrigin(0.5);
     this.logoTeam.setAlpha(0);
     
-    this.logoGame = this.add.image(640, 360, "logoGame");
+    this.logoGame = this.add.image(960, 540, "logoGame");
     this.logoGame.setOrigin(0.5);
     this.logoGame.setAlpha(0);
     
