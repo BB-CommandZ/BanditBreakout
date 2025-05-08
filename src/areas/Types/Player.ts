@@ -1,8 +1,8 @@
 import Status from './Status';
-import Item from './Item';
 import Tile from './Tile';
 import Game from './Game';
 import Move from './Movement';
+import Inventory from '../Player/Inventory';
 
 /**
  * Represents a player on the map
@@ -20,7 +20,7 @@ export default class Player {
   character_id: number;
   isAlive: boolean;
   status: Status;
-  inventory: Item[];
+  inventory: Inventory;
   move: Move;
 
 
@@ -40,7 +40,7 @@ export default class Player {
         this.character_id = 0;
         this.isAlive = true;
         this.status = new Status(this.id);
-        this.inventory = [];
+        this.inventory = new Inventory(this);
         this.move = new Move(this)
       } 
 
@@ -135,28 +135,4 @@ export default class Player {
         this.status.effects.splice(index, 1);
     }
     }
-
-    // INVENTORY RELATED METHODS
-
-    public getInventory() {
-    return this.inventory;
-    }
-
-    public inventorySet(inventory: Item[]) {
-    this.inventory = inventory;
-    }
-
-    public inventoryAdd(item: Item) {
-    this.inventory.push(item);
-    }
-
-    public inventoryRemove(item: Item) {
-    const index = this.inventory.indexOf(item);
-    if (index > -1) {
-        this.inventory.splice(index, 1);
-    }
-    }
-
-    // POSITION RELATED METHODS
-
 }

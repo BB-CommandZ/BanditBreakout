@@ -1,8 +1,7 @@
 import Tile from "./Tile";
 import Game from "./Game";
-import Item from "./Item"; 
-// IEvent interface, defining the structure of an event
-
+// Removed 'TumbleweedItem' import as it's not directly used here.
+// Items are handled through player.inventory
 
 /**
  * Represents a tile event that can occur during gameplay
@@ -24,7 +23,7 @@ export class NothingEvent implements IEvent {
     name = "Nothing";
     type = 0;
     description = "Default";
-    effect = "Starting Tile/Debugging";
+    effect = "Nothing happens on this tile."; // Changed for clarity
     tile: Tile;
 
     constructor(tile: Tile) {
@@ -32,7 +31,8 @@ export class NothingEvent implements IEvent {
     }
 
     public onStep(playerId: number, game: Game): void {
-        console.log(`Player ${playerId} stepped on start`); 
+        // More generic message
+        console.log(`Player ${playerId} landed on tile ${this.tile.index}. Nothing special happens.`); 
     }
 }
 
@@ -49,13 +49,16 @@ export class SafeEvent implements IEvent {
     }
 
     public onStep(playerId: number, game: Game): void {
-        const player = game.players.find(player => player.id === playerId);
-        if (player) {
-            player.gold('+3');
-            console.log(`Player ${playerId} gained 3 gold from stepping on a Safe tile.`);
+        const player = game.players.find(p => p.id === playerId);
+        if (!player) {
+            console.error(`SafeEvent: Player ${playerId} not found.`);
+            return;
         }
-    }
+        player.gold('+3');
+        console.log(`Player ${playerId} landed on a Safe tile ${this.tile.index} and gained 3 gold. Current gold: ${player.getGold()}`);
+    }    
 }
+
 // BATTLE EVENT (TYPE 2)
 export class BattleEvent implements IEvent {
     name = "Battle";
@@ -67,9 +70,15 @@ export class BattleEvent implements IEvent {
     constructor(tile: Tile) { this.tile = tile; }
 
     public onStep(playerId: number, game: Game): void {
-        console.log(`Player ${playerId} stepped on ${this.tile.index} (Battle event not yet implemented)`); 
+        const player = game.players.find(p => p.id === playerId);
+        if (!player) {
+            console.error(`BattleEvent: Player ${playerId} not found.`);
+            return;
+        }
+        console.log(`Player ${playerId} stepped on tile ${this.tile.index} and is ambushed! (Battle logic to be implemented)`);
+        // Future: game.initiateBattle(player, 'randomThug');
     }
-}
+}    
 
 // BATTLE EFFECT EVENT (TYPE 3)
 export class BattleEffectEvent implements IEvent {
@@ -82,12 +91,14 @@ export class BattleEffectEvent implements IEvent {
     constructor(tile: Tile) { this.tile = tile; }
 
     public onStep(playerId: number, game: Game): void {
-        const player = game.players.find(player => player.id === playerId);
-        if (player) {
-            player.effectAdd("battle_buff");
-            console.log(`Player ${playerId} gained a battle buff!`);
+        const player = game.players.find(p => p.id === playerId);
+        if (!player) {
+            console.error(`BattleEffectEvent: Player ${playerId} not found.`);
+            return;
         }
-    }
+        player.effectAdd("battle_buff"); // Ensure "battle_buff" is recognized by your effect system
+        console.log(`Player ${playerId} stepped on tile ${this.tile.index}, gained a battle buff!`);
+    }    
 }
 
 // ITEM EVENT (TYPE 4)
@@ -101,19 +112,20 @@ export class ItemEvent implements IEvent {
     constructor(tile: Tile) { this.tile = tile; }
 
     public onStep(playerId: number, game: Game): void {
-        const player = game.players.find(player => player.id === playerId);
-        if (player) {
-            // Give a simple item for now (expand later)
-            const item = new Item(1, "Lucky Coin", "A shiny coin. Maybe it's lucky?", "Increase gold gain.", false);
-            player.inventoryAdd(item);
-            console.log(`Player ${playerId} found an item: ${item.name}`);
+        const player = game.players.find(p => p.id === playerId); // Corrected variable name
+        if (!player) {
+            console.error(`ItemEvent: Player ${playerId} not found.`);
+            return;
         }
+        // Use obtainRandom() as discussed. The log for item name is in obtainRandom().
+        player.inventory.obtainRandom(); 
+        console.log(`Player ${playerId} searched tile ${this.tile.index} and found an item!`);
     }
 }
 
 // EVENT (TYPE 5) - Story or special events
 export class StoryEvent implements IEvent {
-    name = "Event";
+    name = "Event"; // Consider a more descriptive name like "Story Encounter" if appropriate
     type = 5;
     description = "A story or special event occurs.";
     effect = "Something interesting happens!";
@@ -122,9 +134,15 @@ export class StoryEvent implements IEvent {
     constructor(tile: Tile) { this.tile = tile; }
 
     public onStep(playerId: number, game: Game): void {
-        console.log(`Player ${playerId} stepped on ${this.tile.index} (Story event not yet implemented)`); 
+        const player = game.players.find(p => p.id === playerId);
+        if (!player) {
+            console.error(`StoryEvent: Player ${playerId} not found.`);
+            return;
+        }
+        console.log(`Player ${playerId} stepped on tile ${this.tile.index}. A story event unfolds! (Story logic to be implemented)`);
+        // Future: game.triggerStoryEvent(this.tile.storyId); // Potentially pass a story ID from the tile
     }
-}
+}    
 
 // SLOTS EVENT (TYPE 6)
 export class SlotsEvent implements IEvent {
@@ -137,12 +155,16 @@ export class SlotsEvent implements IEvent {
     constructor(tile: Tile) { this.tile = tile; }
 
     public onStep(playerId: number, game: Game): void {
-        const player = game.players.find(player => player.id === playerId);
-        if (player) {
-            const amount = Math.floor(Math.random() * 11) - 5; // -5 to +5
-            player.gold(amount >= 0 ? `+${amount}` : `${amount}`);
-            console.log(`Player ${playerId} played slots and ${amount >= 0 ? 'won' : 'lost'} ${Math.abs(amount)} gold.`);
+        const player = game.players.find(p => p.id === playerId);
+        if (!player) {
+            console.error(`SlotsEvent: Player ${playerId} not found.`);
+            return;
         }
+        const amount = Math.floor(Math.random() * 61) - 10; // Results in a range from -10 to +50
+        const action = amount >= 0 ? `+${amount}` : `${amount}`;
+        player.gold(action);
+
+        console.log(`Player ${playerId} stepped on tile ${this.tile.index}, played slots and ${amount >= 0 ? 'won' : 'lost'} ${Math.abs(amount)} gold. Current gold: ${player.getGold()}`);
     }
 }
 
@@ -157,12 +179,14 @@ export class MiningEvent implements IEvent {
     constructor(tile: Tile) { this.tile = tile; }
 
     public onStep(playerId: number, game: Game): void {
-        const player = game.players.find(player => player.id === playerId);
-        if (player) {
-            const gold = Math.floor(Math.random() * 6) + 5; // 5-10 gold
-            player.gold(`+${gold}`);
-            console.log(`Player ${playerId} mined and gained ${gold} gold.`);
+        const player = game.players.find(p => p.id === playerId);
+        if (!player) {
+            console.error(`MiningEvent: Player ${playerId} not found.`);
+            return;
         }
+        const goldGained = Math.floor(Math.random() * 21) + 10; // Generates a number between 10 and 30
+        player.gold(`+${goldGained}`);
+        console.log(`Player ${playerId} stepped on tile ${this.tile.index}, mined and gained ${goldGained} gold. Current gold: ${player.getGold()}`);
     }
 }
 
@@ -177,26 +201,54 @@ export class DecisionEvent implements IEvent {
     constructor(tile: Tile) { this.tile = tile; }
 
     public onStep(playerId: number, game: Game): void {
-        console.log(`Player ${playerId} stepped on ${this.tile.index} (Decision event not yet implemented)`); 
+        const player = game.players.find(p => p.id === playerId);
+        if (!player) {
+            console.error(`DecisionEvent: Player ${playerId} not found.`);
+            return;
+        }
+        console.log(`Player ${playerId} stepped on tile ${this.tile.index}, a decision point! (Decision logic to be implemented)`);
+        // Future: game.presentDecision(player, this.tile.getDecisionOptions()); // Tile might hold decision data
+    }
+}
+
+// CURSED COFFIN EVENT (TYPE 9) (COMES FROM ITEMS)
+export class CursedCoffinEvent implements IEvent {
+    name = "Cursed Coffin Trap"; // Renamed for clarity as it's the TRAP event
+    type = 9;
+    description = "A previously placed Cursed Coffin trap springs!";
+    effect = "You are forced into the cursed tomb. You are stuck here for 2 rounds!";
+    tile: Tile;
+
+    constructor(tile: Tile) {
+        this.tile = tile;
+    }
+
+    public onStep(playerId: number, game: Game): void {
+        const player = game.players.find(p => p.id === playerId); // Corrected player retrieval
+        if (!player) {
+            console.error(`CursedCoffinEvent: Player ${playerId} not found.`);
+            return;
+        }
+        
+        console.log(`Player ${playerId} stepped on tile ${this.tile.index} and triggered a Cursed Coffin trap!`);
+        player.effectAdd("cursedCoffin_stun"); // Ensure "cursedCoffin_stun" makes player miss 2 turns
+        console.log(`Player ${playerId} is stunned by the Cursed Coffin for 2 rounds.`);
+
+        // Revert the tile's event to NothingEvent (type 0) after the trap is sprung
+        // This assumes Tile.setEvent takes (eventType: number, tileContext: Tile)
+        this.tile.setEvent(0, this.tile); 
+        console.log(`Cursed Coffin trap removed from tile ${this.tile.index}. It now has a NothingEvent.`);
     }
 }
 
 // Factory
-    /**
-      * Creates a new event based on the given type
-      * 
-      * @param type - The type of event to create
-      * - 0: NothingEvent
-      * - 1: SafeEvent
-      * - 2: BattleEvent
-      * - 3: BattleEffectEvent
-      * - 4: ItemEvent
-      * - 5: StoryEvent
-      * - 6: SlotsEvent
-      * - 7: MiningEvent
-      * - 8: DecisionEvent
-      * @returns An instance of the appropriate event class
-      */
+/**
+  * Creates a new event based on the given type
+  * 
+  * @param type - The type of event to create
+  * @param tile - The tile on which the event occurs
+  * @returns An instance of the appropriate event class
+  */
 export class EventFactory {
     public static createEvent(type: number, tile: Tile): IEvent {
         switch (type) {
@@ -209,7 +261,10 @@ export class EventFactory {
             case 6: return new SlotsEvent(tile);
             case 7: return new MiningEvent(tile);
             case 8: return new DecisionEvent(tile);
-            default: return new NothingEvent(tile);
+            case 9: return new CursedCoffinEvent(tile); // This event is set by the CursedCoffinItem
+            default: 
+                console.warn(`EventFactory: Unknown event type ${type} requested for tile ${tile.index}. Defaulting to NothingEvent.`);
+                return new NothingEvent(tile);
         }
     }
 }
