@@ -4,7 +4,8 @@
   "description": "There will be a bunch of useful stuff",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsx src/cli-game.ts"
   },
   "keywords": [],
   "author": "",
@@ -16,8 +17,10 @@
   "dependencies": {
     "@types/express": "^5.0.1",
     "@types/node": "^22.15.3",
+    "@types/prompts": "^2.4.9",
     "@types/socket.io": "^3.0.2",
     "express": "^5.1.0",
+    "prompts": "^2.4.2",
     "socket.io": "^4.8.1"
   }
 }

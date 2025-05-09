@@ -74,9 +74,55 @@ export default class Map {
     tiles: Tile[];
     playerPositions: number[];
 
-    constructor() {
+    /**
+     * Gets serializable map state
+     */
+    public getSaveData() {
+        return {
+            tiles: this.tiles.map(tile => ({
+                index: tile.index,
+                eventType: tile.getEvent()?.type ?? 0,
+                players: tile.getPlayersOnTile(),
+                connections: tile.getConnections()
+            })),
+            playerPositions: this.playerPositions
+        };
+    }
+
+    /**
+     * Loads map state from saved data
+     */
+    public loadFromSave(saveData: any) {
+        // Recreate tiles
         this.tiles = [];
-        this.playerPositions = [];
+        this.createTiles(saveData.tiles.length);
+
+        // Restore tile states
+        saveData.tiles.forEach((tileData: any) => {
+            const tile = this.tiles[tileData.index];
+            tile.setEvent(tileData.eventType, tile);
+            tileData.players.forEach((playerId: number) => tile.addPlayer(playerId));
+            
+            // Reconnect tiles
+            tileData.connections.forEach((connectedIndex: number) => {
+                tile.connectTo(connectedIndex);
+            });
+        });
+
+        // Restore player positions
+        this.playerPositions = [...saveData.playerPositions];
+    }
+
+    constructor() {
+        console.log('Map constructor called');
+        try {
+            this.tiles = [];
+            this.playerPositions = [];
+            console.log('Map base initialized');
+        } catch (err) {
+            console.error('Map construction failed:', err);
+            throw err;
+        }
     }
 
     // INITIALIZE MAP, MAIN FUNCTION

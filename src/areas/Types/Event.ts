@@ -1,5 +1,6 @@
 import Tile from "./Tile";
 import Game from "./Game";
+import prompts from 'prompts';
 // Removed 'TumbleweedItem' import as it's not directly used here.
 // Items are handled through player.inventory
 
@@ -15,7 +16,7 @@ export interface IEvent {
     effect: string;
     tile: Tile;
 
-    onStep(playerId: number, game: Game): void;
+    onStep(playerId: number, game: Game): Promise<void>;
 }
 
 // NOTHING EVENT (TYPE 0)
@@ -30,9 +31,10 @@ export class NothingEvent implements IEvent {
         this.tile = tile;
     }
 
-    public onStep(playerId: number, game: Game): void {
+    public async onStep(playerId: number, game: Game): Promise<void> {
         // More generic message
-        console.log(`Player ${playerId} landed on tile ${this.tile.index}. Nothing special happens.`); 
+        console.log(`Player ${playerId} landed on tile ${this.tile.index}. Nothing special happens.`);
+        return Promise.resolve();
     }
 }
 
@@ -48,14 +50,15 @@ export class SafeEvent implements IEvent {
         this.tile = tile;
     }
 
-    public onStep(playerId: number, game: Game): void {
+    public async onStep(playerId: number, game: Game): Promise<void> {
         const player = game.players.find(p => p.id === playerId);
         if (!player) {
             console.error(`SafeEvent: Player ${playerId} not found.`);
-            return;
+            return Promise.resolve();
         }
-        player.gold('+3');
+        player.setGold(player.getGold() + 3);
         console.log(`Player ${playerId} landed on a Safe tile ${this.tile.index} and gained 3 gold. Current gold: ${player.getGold()}`);
+        return Promise.resolve();
     }    
 }
 
@@ -69,14 +72,15 @@ export class BattleEvent implements IEvent {
 
     constructor(tile: Tile) { this.tile = tile; }
 
-    public onStep(playerId: number, game: Game): void {
+    public async onStep(playerId: number, game: Game): Promise<void> {
         const player = game.players.find(p => p.id === playerId);
         if (!player) {
             console.error(`BattleEvent: Player ${playerId} not found.`);
-            return;
+            return Promise.resolve();
         }
         console.log(`Player ${playerId} stepped on tile ${this.tile.index} and is ambushed! (Battle logic to be implemented)`);
         // Future: game.initiateBattle(player, 'randomThug');
+        return Promise.resolve();
     }
 }    
 
@@ -90,14 +94,15 @@ export class BattleEffectEvent implements IEvent {
 
     constructor(tile: Tile) { this.tile = tile; }
 
-    public onStep(playerId: number, game: Game): void {
+    public async onStep(playerId: number, game: Game): Promise<void> {
         const player = game.players.find(p => p.id === playerId);
         if (!player) {
             console.error(`BattleEffectEvent: Player ${playerId} not found.`);
-            return;
+            return Promise.resolve();
         }
         player.effectAdd("battle_buff"); // Ensure "battle_buff" is recognized by your effect system
         console.log(`Player ${playerId} stepped on tile ${this.tile.index}, gained a battle buff!`);
+        return Promise.resolve();
     }    
 }
 
@@ -111,15 +116,16 @@ export class ItemEvent implements IEvent {
 
     constructor(tile: Tile) { this.tile = tile; }
 
-    public onStep(playerId: number, game: Game): void {
+    public async onStep(playerId: number, game: Game): Promise<void> {
         const player = game.players.find(p => p.id === playerId); // Corrected variable name
         if (!player) {
             console.error(`ItemEvent: Player ${playerId} not found.`);
-            return;
+            return Promise.resolve();
         }
         // Use obtainRandom() as discussed. The log for item name is in obtainRandom().
         player.inventory.obtainRandom(); 
         console.log(`Player ${playerId} searched tile ${this.tile.index} and found an item!`);
+        return Promise.resolve();
     }
 }
 
@@ -133,14 +139,15 @@ export class StoryEvent implements IEvent {
 
     constructor(tile: Tile) { this.tile = tile; }
 
-    public onStep(playerId: number, game: Game): void {
+    public async onStep(playerId: number, game: Game): Promise<void> {
         const player = game.players.find(p => p.id === playerId);
         if (!player) {
             console.error(`StoryEvent: Player ${playerId} not found.`);
-            return;
+            return Promise.resolve();
         }
         console.log(`Player ${playerId} stepped on tile ${this.tile.index}. A story event unfolds! (Story logic to be implemented)`);
         // Future: game.triggerStoryEvent(this.tile.storyId); // Potentially pass a story ID from the tile
+        return Promise.resolve();
     }
 }    
 
@@ -154,17 +161,18 @@ export class SlotsEvent implements IEvent {
 
     constructor(tile: Tile) { this.tile = tile; }
 
-    public onStep(playerId: number, game: Game): void {
+    public async onStep(playerId: number, game: Game): Promise<void> {
         const player = game.players.find(p => p.id === playerId);
         if (!player) {
             console.error(`SlotsEvent: Player ${playerId} not found.`);
-            return;
+            return Promise.resolve();
         }
         const amount = Math.floor(Math.random() * 61) - 10; // Results in a range from -10 to +50
-        const action = amount >= 0 ? `+${amount}` : `${amount}`;
-        player.gold(action);
+        const currentGold = player.getGold();
+        player.setGold(currentGold + amount);
 
         console.log(`Player ${playerId} stepped on tile ${this.tile.index}, played slots and ${amount >= 0 ? 'won' : 'lost'} ${Math.abs(amount)} gold. Current gold: ${player.getGold()}`);
+        return Promise.resolve();
     }
 }
 
@@ -178,15 +186,16 @@ export class MiningEvent implements IEvent {
 
     constructor(tile: Tile) { this.tile = tile; }
 
-    public onStep(playerId: number, game: Game): void {
+    public async onStep(playerId: number, game: Game): Promise<void> {
         const player = game.players.find(p => p.id === playerId);
         if (!player) {
             console.error(`MiningEvent: Player ${playerId} not found.`);
-            return;
+            return Promise.resolve();
         }
         const goldGained = Math.floor(Math.random() * 21) + 10; // Generates a number between 10 and 30
-        player.gold(`+${goldGained}`);
+        player.setGold(player.getGold() + goldGained);
         console.log(`Player ${playerId} stepped on tile ${this.tile.index}, mined and gained ${goldGained} gold. Current gold: ${player.getGold()}`);
+        return Promise.resolve();
     }
 }
 
@@ -200,14 +209,46 @@ export class DecisionEvent implements IEvent {
 
     constructor(tile: Tile) { this.tile = tile; }
 
-    public onStep(playerId: number, game: Game): void {
+    public async onStep(playerId: number, game: Game): Promise<void> {
         const player = game.players.find(p => p.id === playerId);
         if (!player) {
             console.error(`DecisionEvent: Player ${playerId} not found.`);
             return;
         }
-        console.log(`Player ${playerId} stepped on tile ${this.tile.index}, a decision point! (Decision logic to be implemented)`);
-        // Future: game.presentDecision(player, this.tile.getDecisionOptions()); // Tile might hold decision data
+
+        console.log(`Player ${playerId} reached a decision point on tile ${this.tile.index}!`);
+        const possiblePaths = this.tile.getFront(); // Assuming getFront() returns tile indices as number[]
+
+        if (!possiblePaths || possiblePaths.length === 0) {
+            console.log("No forward paths available from this decision point. Staying put.");
+            return;
+        }
+
+        if (possiblePaths.length === 1) {
+            console.log(`Only one path forward to tile ${possiblePaths[0]}. Moving automatically.`);
+            await player.move.to(possiblePaths[0]); // player.move.to should also be async if it calls onStep
+            return;
+        }
+
+        const choices = possiblePaths.map(pathIndex => ({
+            title: `Go to Tile ${pathIndex}`, // You might want more descriptive paths later
+            value: pathIndex
+        }));
+
+        const response = await prompts({
+            type: 'select',
+            name: 'chosenPath',
+            message: 'Choose your path:',
+            choices: choices
+        });
+
+        if (typeof response.chosenPath !== 'undefined') {
+            console.log(`Player ${playerId} chose to move to Tile ${response.chosenPath}.`);
+            await player.move.to(response.chosenPath); 
+        } else {
+            console.log(`Player ${playerId} made no choice. Staying on tile ${this.tile.index}.`);
+            // Or default to first path, or re-prompt, based on desired game rules
+        }
     }
 }
 
@@ -223,11 +264,11 @@ export class CursedCoffinEvent implements IEvent {
         this.tile = tile;
     }
 
-    public onStep(playerId: number, game: Game): void {
+    public async onStep(playerId: number, game: Game): Promise<void> {
         const player = game.players.find(p => p.id === playerId); // Corrected player retrieval
         if (!player) {
             console.error(`CursedCoffinEvent: Player ${playerId} not found.`);
-            return;
+            return Promise.resolve();
         }
         
         console.log(`Player ${playerId} stepped on tile ${this.tile.index} and triggered a Cursed Coffin trap!`);
@@ -238,6 +279,7 @@ export class CursedCoffinEvent implements IEvent {
         // This assumes Tile.setEvent takes (eventType: number, tileContext: Tile)
         this.tile.setEvent(0, this.tile); 
         console.log(`Cursed Coffin trap removed from tile ${this.tile.index}. It now has a NothingEvent.`);
+        return Promise.resolve();
     }
 }
 

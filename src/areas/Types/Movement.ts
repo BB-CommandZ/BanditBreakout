@@ -15,14 +15,18 @@ export default class Move {
      * Moves a specific player to a specific Tile
      * @param tile - The tile index
      */
-    public to(tile: number): void {
+    public async to(tile: number): Promise<void> {
         const currentPos = this.game.map.findPlayer(this.player.id);
         
         if (currentPos !== -1) {
             this.game.map.tiles[currentPos].removePlayer(this.player.id);
             this.game.map.tiles[tile].addPlayer(this.player.id);
             
-            this.game.map.tiles[tile].getEvent().onStep(this.player.id, this.game);
+            if (this.game.map.tiles[tile]) {
+                await this.game.map.tiles[tile].getEvent().onStep(this.player.id, this.game);
+            } else {
+                console.error(`Error: Tile ${tile} does not exist on map.`);
+            }
             
             console.log(`Moved player ${this.player.id} to tile ${tile}`);
         } else {
@@ -57,25 +61,22 @@ export default class Move {
         }
     }
 
-    public front(by: number): void {
+    public async front(by: number): Promise<void> {
         let currentTile = this.game.map.findPlayer(this.player.id);
         for (let i = 0; i < by; i++) {
-
             const frontArray = this.game.map.tiles[currentTile].getFront();
 
             if (frontArray.length === 0) {
                 console.log(`THIS SHOULD CONNECT THE BOSS BATTLE`); // TODO
-                this.player.move.to(43)
-                currentTile = 43
-
+                await this.player.move.to(43);
+                currentTile = 43;
             } else if (frontArray.length > 1) {
                 console.log('this should start decision event') // TODO
-                // REMOVE NEXT LINE AND REPALCE WITH DECISION EVENT WHEN IMPLEMENTED
-                this.player.move.to(frontArray[0])
+                // REMOVE NEXT LINE AND REPLACE WITH DECISION EVENT WHEN IMPLEMENTED
+                await this.player.move.to(frontArray[0]);
                 currentTile = frontArray[0];
-
             } else {
-                this.player.move.to(frontArray[0])
+                await this.player.move.to(frontArray[0]);
                 currentTile = frontArray[0];
             }
         }

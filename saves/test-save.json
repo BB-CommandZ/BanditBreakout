@@ -1,0 +1,973 @@
+{
+  "sessionId": "test-session",
+  "players": [
+    {
+      "id": 1,
+      "position": 0,
+      "gold": 50,
+      "inventory": [],
+      "effects": [
+        {
+          "name": "test_effect",
+          "duration": 3
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "position": 0,
+      "gold": 25,
+      "inventory": [],
+      "effects": []
+    }
+  ],
+  "mapState": {
+    "tiles": [
+      {
+        "index": 0,
+        "eventType": 0,
+        "players": [
+          1,
+          2
+        ],
+        "connections": [
+          1
+        ]
+      },
+      {
+        "index": 1,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          0,
+          2
+        ]
+      },
+      {
+        "index": 2,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          1,
+          3
+        ]
+      },
+      {
+        "index": 3,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          2,
+          4
+        ]
+      },
+      {
+        "index": 4,
+        "eventType": 4,
+        "players": [],
+        "connections": [
+          3,
+          5
+        ]
+      },
+      {
+        "index": 5,
+        "eventType": 8,
+        "players": [],
+        "connections": [
+          4,
+          6,
+          44
+        ]
+      },
+      {
+        "index": 6,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          5,
+          7
+        ]
+      },
+      {
+        "index": 7,
+        "eventType": 3,
+        "players": [],
+        "connections": [
+          6,
+          8
+        ]
+      },
+      {
+        "index": 8,
+        "eventType": 4,
+        "players": [],
+        "connections": [
+          7,
+          9
+        ]
+      },
+      {
+        "index": 9,
+        "eventType": 4,
+        "players": [],
+        "connections": [
+          8,
+          10,
+          15
+        ]
+      },
+      {
+        "index": 10,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          9,
+          11
+        ]
+      },
+      {
+        "index": 11,
+        "eventType": 5,
+        "players": [],
+        "connections": [
+          10,
+          12
+        ]
+      },
+      {
+        "index": 12,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          11,
+          13
+        ]
+      },
+      {
+        "index": 13,
+        "eventType": 8,
+        "players": [],
+        "connections": [
+          12,
+          14,
+          62
+        ]
+      },
+      {
+        "index": 14,
+        "eventType": 3,
+        "players": [],
+        "connections": [
+          13,
+          15
+        ]
+      },
+      {
+        "index": 15,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          14,
+          16,
+          9
+        ]
+      },
+      {
+        "index": 16,
+        "eventType": 3,
+        "players": [],
+        "connections": [
+          15,
+          17
+        ]
+      },
+      {
+        "index": 17,
+        "eventType": 4,
+        "players": [],
+        "connections": [
+          16,
+          18
+        ]
+      },
+      {
+        "index": 18,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          17,
+          19
+        ]
+      },
+      {
+        "index": 19,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          18,
+          20
+        ]
+      },
+      {
+        "index": 20,
+        "eventType": 3,
+        "players": [],
+        "connections": [
+          19,
+          21
+        ]
+      },
+      {
+        "index": 21,
+        "eventType": 2,
+        "players": [],
+        "connections": [
+          20,
+          22
+        ]
+      },
+      {
+        "index": 22,
+        "eventType": 4,
+        "players": [],
+        "connections": [
+          21,
+          23
+        ]
+      },
+      {
+        "index": 23,
+        "eventType": 6,
+        "players": [],
+        "connections": [
+          22,
+          24
+        ]
+      },
+      {
+        "index": 24,
+        "eventType": 5,
+        "players": [],
+        "connections": [
+          23,
+          25
+        ]
+      },
+      {
+        "index": 25,
+        "eventType": 6,
+        "players": [],
+        "connections": [
+          24,
+          26
+        ]
+      },
+      {
+        "index": 26,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          25,
+          27
+        ]
+      },
+      {
+        "index": 27,
+        "eventType": 2,
+        "players": [],
+        "connections": [
+          26,
+          28
+        ]
+      },
+      {
+        "index": 28,
+        "eventType": 8,
+        "players": [],
+        "connections": [
+          27,
+          29,
+          66,
+          99
+        ]
+      },
+      {
+        "index": 29,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          28,
+          30
+        ]
+      },
+      {
+        "index": 30,
+        "eventType": 4,
+        "players": [],
+        "connections": [
+          29,
+          31
+        ]
+      },
+      {
+        "index": 31,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          30,
+          32
+        ]
+      },
+      {
+        "index": 32,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          31,
+          33
+        ]
+      },
+      {
+        "index": 33,
+        "eventType": 2,
+        "players": [],
+        "connections": [
+          32,
+          34
+        ]
+      },
+      {
+        "index": 34,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          33,
+          35
+        ]
+      },
+      {
+        "index": 35,
+        "eventType": 5,
+        "players": [],
+        "connections": [
+          34,
+          36
+        ]
+      },
+      {
+        "index": 36,
+        "eventType": 4,
+        "players": [],
+        "connections": [
+          35,
+          37
+        ]
+      },
+      {
+        "index": 37,
+        "eventType": 4,
+        "players": [],
+        "connections": [
+          36,
+          38
+        ]
+      },
+      {
+        "index": 38,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          37,
+          39
+        ]
+      },
+      {
+        "index": 39,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          38,
+          40,
+          102
+        ]
+      },
+      {
+        "index": 40,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          39,
+          41
+        ]
+      },
+      {
+        "index": 41,
+        "eventType": 4,
+        "players": [],
+        "connections": [
+          40,
+          42
+        ]
+      },
+      {
+        "index": 42,
+        "eventType": 2,
+        "players": [],
+        "connections": [
+          41,
+          43
+        ]
+      },
+      {
+        "index": 43,
+        "eventType": 2,
+        "players": [],
+        "connections": [
+          42
+        ]
+      },
+      {
+        "index": 44,
+        "eventType": 3,
+        "players": [],
+        "connections": [
+          45,
+          5
+        ]
+      },
+      {
+        "index": 45,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          44,
+          46
+        ]
+      },
+      {
+        "index": 46,
+        "eventType": 5,
+        "players": [],
+        "connections": [
+          45,
+          47
+        ]
+      },
+      {
+        "index": 47,
+        "eventType": 2,
+        "players": [],
+        "connections": [
+          46,
+          48
+        ]
+      },
+      {
+        "index": 48,
+        "eventType": 4,
+        "players": [],
+        "connections": [
+          47,
+          49
+        ]
+      },
+      {
+        "index": 49,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          48,
+          50
+        ]
+      },
+      {
+        "index": 50,
+        "eventType": 3,
+        "players": [],
+        "connections": [
+          49,
+          51
+        ]
+      },
+      {
+        "index": 51,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          50,
+          52
+        ]
+      },
+      {
+        "index": 52,
+        "eventType": 2,
+        "players": [],
+        "connections": [
+          51,
+          53
+        ]
+      },
+      {
+        "index": 53,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          52,
+          54
+        ]
+      },
+      {
+        "index": 54,
+        "eventType": 8,
+        "players": [],
+        "connections": [
+          53,
+          55,
+          67
+        ]
+      },
+      {
+        "index": 55,
+        "eventType": 4,
+        "players": [],
+        "connections": [
+          54,
+          56,
+          61
+        ]
+      },
+      {
+        "index": 56,
+        "eventType": 2,
+        "players": [],
+        "connections": [
+          55,
+          57
+        ]
+      },
+      {
+        "index": 57,
+        "eventType": 8,
+        "players": [],
+        "connections": [
+          56,
+          58,
+          90
+        ]
+      },
+      {
+        "index": 58,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          57,
+          59
+        ]
+      },
+      {
+        "index": 59,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          58,
+          60
+        ]
+      },
+      {
+        "index": 60,
+        "eventType": 8,
+        "players": [],
+        "connections": [
+          59,
+          61,
+          63
+        ]
+      },
+      {
+        "index": 61,
+        "eventType": 2,
+        "players": [],
+        "connections": [
+          60,
+          62,
+          55
+        ]
+      },
+      {
+        "index": 62,
+        "eventType": 3,
+        "players": [],
+        "connections": [
+          61,
+          13
+        ]
+      },
+      {
+        "index": 63,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          64,
+          60
+        ]
+      },
+      {
+        "index": 64,
+        "eventType": 5,
+        "players": [],
+        "connections": [
+          63,
+          65
+        ]
+      },
+      {
+        "index": 65,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          64,
+          66
+        ]
+      },
+      {
+        "index": 66,
+        "eventType": 2,
+        "players": [],
+        "connections": [
+          65,
+          28
+        ]
+      },
+      {
+        "index": 67,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          68,
+          54
+        ]
+      },
+      {
+        "index": 68,
+        "eventType": 5,
+        "players": [],
+        "connections": [
+          67,
+          69
+        ]
+      },
+      {
+        "index": 69,
+        "eventType": 4,
+        "players": [],
+        "connections": [
+          68,
+          70
+        ]
+      },
+      {
+        "index": 70,
+        "eventType": 2,
+        "players": [],
+        "connections": [
+          69,
+          71
+        ]
+      },
+      {
+        "index": 71,
+        "eventType": 3,
+        "players": [],
+        "connections": [
+          70,
+          72
+        ]
+      },
+      {
+        "index": 72,
+        "eventType": 2,
+        "players": [],
+        "connections": [
+          71,
+          73
+        ]
+      },
+      {
+        "index": 73,
+        "eventType": 8,
+        "players": [],
+        "connections": [
+          72,
+          74,
+          82
+        ]
+      },
+      {
+        "index": 74,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          73,
+          75
+        ]
+      },
+      {
+        "index": 75,
+        "eventType": 2,
+        "players": [],
+        "connections": [
+          74,
+          76
+        ]
+      },
+      {
+        "index": 76,
+        "eventType": 3,
+        "players": [],
+        "connections": [
+          75,
+          77
+        ]
+      },
+      {
+        "index": 77,
+        "eventType": 4,
+        "players": [],
+        "connections": [
+          76,
+          78
+        ]
+      },
+      {
+        "index": 78,
+        "eventType": 2,
+        "players": [],
+        "connections": [
+          77,
+          79
+        ]
+      },
+      {
+        "index": 79,
+        "eventType": 2,
+        "players": [],
+        "connections": [
+          78,
+          80,
+          83
+        ]
+      },
+      {
+        "index": 80,
+        "eventType": 2,
+        "players": [],
+        "connections": [
+          79,
+          81
+        ]
+      },
+      {
+        "index": 81,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          80,
+          82
+        ]
+      },
+      {
+        "index": 82,
+        "eventType": 4,
+        "players": [],
+        "connections": [
+          81,
+          73
+        ]
+      },
+      {
+        "index": 83,
+        "eventType": 4,
+        "players": [],
+        "connections": [
+          84,
+          79
+        ]
+      },
+      {
+        "index": 84,
+        "eventType": 2,
+        "players": [],
+        "connections": [
+          83,
+          85
+        ]
+      },
+      {
+        "index": 85,
+        "eventType": 2,
+        "players": [],
+        "connections": [
+          84,
+          86
+        ]
+      },
+      {
+        "index": 86,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          85,
+          87
+        ]
+      },
+      {
+        "index": 87,
+        "eventType": 3,
+        "players": [],
+        "connections": [
+          86,
+          88
+        ]
+      },
+      {
+        "index": 88,
+        "eventType": 4,
+        "players": [],
+        "connections": [
+          87,
+          89,
+          91
+        ]
+      },
+      {
+        "index": 89,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          88,
+          90
+        ]
+      },
+      {
+        "index": 90,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          89,
+          57
+        ]
+      },
+      {
+        "index": 91,
+        "eventType": 2,
+        "players": [],
+        "connections": [
+          92,
+          88
+        ]
+      },
+      {
+        "index": 92,
+        "eventType": 3,
+        "players": [],
+        "connections": [
+          91,
+          93
+        ]
+      },
+      {
+        "index": 93,
+        "eventType": 4,
+        "players": [],
+        "connections": [
+          92,
+          94
+        ]
+      },
+      {
+        "index": 94,
+        "eventType": 7,
+        "players": [],
+        "connections": [
+          93,
+          95
+        ]
+      },
+      {
+        "index": 95,
+        "eventType": 0,
+        "players": [],
+        "connections": [
+          94,
+          96
+        ]
+      },
+      {
+        "index": 96,
+        "eventType": 2,
+        "players": [],
+        "connections": [
+          95,
+          97
+        ]
+      },
+      {
+        "index": 97,
+        "eventType": 7,
+        "players": [],
+        "connections": [
+          96,
+          98,
+          100
+        ]
+      },
+      {
+        "index": 98,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          97,
+          99
+        ]
+      },
+      {
+        "index": 99,
+        "eventType": 4,
+        "players": [],
+        "connections": [
+          98,
+          28
+        ]
+      },
+      {
+        "index": 100,
+        "eventType": 5,
+        "players": [],
+        "connections": [
+          101,
+          97
+        ]
+      },
+      {
+        "index": 101,
+        "eventType": 1,
+        "players": [],
+        "connections": [
+          100,
+          102
+        ]
+      },
+      {
+        "index": 102,
+        "eventType": 2,
+        "players": [],
+        "connections": [
+          101,
+          39
+        ]
+      }
+    ],
+    "playerPositions": []
+  }
+}

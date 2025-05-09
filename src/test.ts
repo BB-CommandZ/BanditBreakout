@@ -34,7 +34,7 @@ console.log("****************************")
 console.log("Player 1's gold before change:")
 console.log(p1.getGold())
 
-p1.gold('+3')
+p1.setGold(p1.getGold() + 3)
 
 console.log("Player 1's gold after:")
 console.log(p1.getGold())
