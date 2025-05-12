@@ -6,24 +6,30 @@ export default class Game {
     players: Player[]
     map: Map
     settings: Settings
+    game_id: string
 
-    constructor() {
+    constructor(game_id: string) {
         this.players = []
         this.map = new Map()
         this.settings = new Settings()
+        this.game_id = game_id
+    }
+
+    public addPlayer(): void {
+       if (this.players.length < 5) {
+        this.players.push(new Player(this, this.players.length + 1))
+        console.log(`Player ${this.players.length} added!`)
+       } else {
+        console.log("Max players reached!")
+       }
     }
     
 
-    public startGame(playerCount: number, game_id: string): void {
+    public startGame(): void {
         console.log("Game started!")
 
-        // create players
-        for (let player = 1; player <= playerCount; player++) {
-            this.players.push(new Player(this, player))
-        }
-        
         // create map
-        this.map.initializeMap(playerCount)
+        this.map.initializeMap(this.players.length)
 
     }
 
