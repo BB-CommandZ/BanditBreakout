@@ -17,7 +17,7 @@ const config = {
   backgroundColor: "#000000",
   pixelArt: false,
   scene: [
-    // EmptyTest,
+    EmptyTest,
     // Start,
     // CutScene,
     // LoadingScreen,
@@ -27,7 +27,7 @@ const config = {
     // Room,
     // CharacterSelection,
     // SettingsMenu,
-    MapScene,
+    // MapScene,
   ],
   scale: {
     mode: Phaser.Scale.FIT,

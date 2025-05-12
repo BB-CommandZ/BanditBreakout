@@ -2,6 +2,7 @@ import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
 import Game from './areas/Types/Game';
+import { v4 as uuidv4 } from 'uuid';
 import { getAssetByFilename } from './db/operations/assetsOps';
 import { MongoClient, GridFSBucket } from 'mongodb';
 // Database imports removed for testing purposes
@@ -48,20 +49,63 @@ function serializeGame(game: Game) {
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
 
+
+    socket.on('hostLobby', async () => {
+      try {
+        let gameId = uuidv4().replace(/-/g, '').substring(0, 6)
+        activeGames[gameId] = new Game(gameId);
+        const game = activeGames[gameId];
+        game.addPlayer()
+        socket.join(gameId);
+        socket.emit('gameId', gameId);
+      } catch (error) {
+        socket.emit('error', { message: 'Failed to create game', details: error || 'Unknown error' });
+        console.error('Error creating game:', error);
+      }
+    })
+
+    socket.on('joinLobby', async (gameId) => {
+      try {
+        if (activeGames[gameId]) {
+          const game = activeGames[gameId];
+          game.addPlayer();
+          socket.join(gameId);
+          socket.emit('joinedLobby', { gameId, playerId: game.players.length });
+          io.to(gameId).emit('playerJoined', { playerId: game.players.length });
+          io.to(gameId).emit('gameState', serializeGame(game));
+        }
+      } catch (error) {
+        socket.emit('error', { message: 'Failed to join game', details: error || 'Unknown error' });
+        console.error('Error joining game:', error);
+      }
+    })
+
+    socket.on('startGame', async (gameId) => {
+      try {
+        if (activeGames[gameId]) {
+          const game = activeGames[gameId];
+          const playerCount = game.players.length;
+          socket.emit('createGame', gameId, playerCount)
+        }
+      } catch (error) {
+        socket.emit('error', { message: 'Failed to start game', details: error || 'Unknown error' });
+        console.error('Error starting game:', error);
+      }
+})
+
+
   // Handle game creation
-  socket.on('createGame', async (gameId: string, name: string, playerCount: number) => {
+  socket.on('createGame', async (gameId: string, playerCount: number) => {
     try {
       // Database operation removed: const newGame = await createGame(gameId, name);
-      console.log(`Attempting to create game with ID: ${gameId}, Name: ${name}, Player Count: ${playerCount}`);
-      activeGames[gameId] = new Game();
-      activeGames[gameId].startGame(playerCount, gameId);
-      socket.join(gameId);
-      socket.emit('gameCreated', { gameId, name });
+      console.log(`Attempting to create game with ID: ${gameId}, Player Count: ${playerCount}`);
+      activeGames[gameId].startGame();
+      socket.emit('gameCreated', { gameId });
       // Send the freshly-built game state to everyone already in the room (just the host for now)
       io.to(gameId).emit('gameState', serializeGame(activeGames[gameId]));
       console.log(`Game created: ${gameId}`);
     } catch (error) {
-      socket.emit('error', { message: 'Failed to create game', details: error.message || 'Unknown error' });
+      socket.emit('error', { message: 'Failed to create game', details: error || 'Unknown error' });
       console.error('Error creating game:', error);
     }
   });
