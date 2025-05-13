@@ -16,7 +16,6 @@ export default class Battle {
 
   attack(opponent: Player) {
     let attackAmount = this.getActionAmount("attack");
-    // check the opponentId
 
     opponent.health(`-${attackAmount}`);
   }
