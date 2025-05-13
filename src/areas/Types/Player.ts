@@ -1,128 +1,108 @@
-import Status from './Status';
-import Tile from './Tile';
-import Game from './Game';
-import Move from './Movement';
-import Inventory from '../Player/Inventory';
+import Game from "./Game";
+import Status from "./Status";
+import Inventory from "../Player/Inventory";
+import Move from "./Movement";
+import { ICharacter, Characters } from "./Character";
+import { IBaseItem } from "./Item";
 
-/**
- * Represents a player on the map
- * 
- * Contains:
- * 
- * - Game id
- * - Health, gold, effects, items
- * - Is the player alive
- * - Current position
- */
 export default class Player {
-  game: Game;
-  id: number;
-  character_id: number;
-  isAlive: boolean;
-  status: Status;
-  inventory: Inventory;
-  move: Move;
+    public id: number;
+    public game: Game;
+    public status: Status;
+    public inventory: Inventory;
+    public move: Move;
+    public character: ICharacter | null;
+    public character_id: number;
 
-  constructor(game: Game, id: number) {
-    this.game = game;
-    this.id = id;
-    this.character_id = 0;
-    this.isAlive = true;
-    this.status = new Status(this.id);
-    this.inventory = new Inventory(this);
-    this.move = new Move(this);
-  } 
+    constructor(game: Game, id: number, initialGold: number = 10, characterId?: number) {
+        this.id = id;
+        this.game = game;
+        this.status = new Status(initialGold);
+        this.inventory = new Inventory(this);
+        this.move = new Move(this);
+        this.character = null;
+        this.character_id = 0;
 
-  // GAME RELATED METHODS
-  
-  public pickCharacter(character_id: number) {
-    this.character_id = character_id;
-  }
-
-  public killPlayer() {
-    this.isAlive = false;
-  }
-
-  // STATUS RELATED METHODS
-
-  /**
-   * Sets player's gold amount
-   */
-  public setGold(amount: number): void {
-    this.status.gold = amount;
-  }
-
-  /**
-   * Gets player's current gold
-   */
-  public getGold(): number {
-    return this.status.gold;
-  }
-
-  /**
-   * Gets player's current health
-   */
-  public getHealth(): number {
-    return this.status.health;
-  }
-
-  /**
-   * Manage player's health using string commands
-   * @param action - Command string: "+5" (heal 5), "-5" (damage 5), "=5" (set to 5)
-   * @returns Current health amount after operation
-   */
-  public health(action: string): number {
-    const result = this._manageResource(action, 'health');
-    
-    if (this.status.health <= 0) {
-      this.killPlayer();
+        if (characterId) {
+            this.selectCharacter(characterId);
+        }
     }
-    
-    return result;
-  }
 
-  private _manageResource(action: string, resourceType: 'gold' | 'health'): number {
-    const firstChar = action.charAt(0);
-    const amount = parseInt(action.substring(1));
-    
-    if (firstChar === '+') {
-      this.status[resourceType] += amount;
-    } else if (firstChar === '-') {
-      this.status[resourceType] = Math.max(0, this.status[resourceType] - amount);
-    } else if (firstChar === '=') {
-      this.status[resourceType] = amount;
+    public selectCharacter(charId: number): boolean {
+        const selectedChar = Characters.find(c => c.id === charId);
+        if (selectedChar) {
+            this.character = selectedChar;
+            this.character_id = charId;
+            console.log(`Player ${this.id} selected character: ${this.character.name}`);
+            return true;
+        }
+        console.warn(`Player ${this.id} failed to select character ID: ${charId}`);
+        return false;
     }
-    
-    return this.status[resourceType];
-  }
 
-  // EFFECTS
-  
-  /**
-   * Adds an effect to the player
-   */
-  public effectAdd(name: string, duration: number = 1): void {
-    this.status.effectAdd(name, duration);
-  }
+    public getCharacterName(): string {
+        return this.character ? this.character.name : "Unselected";
+    }
 
-  /**
-   * Removes an effect from the player
-   */
-  public effectRemove(name: string): void {
-    this.status.effects = this.status.effects.filter(e => e.name !== name);
-  }
+    public getGold(): number { 
+        return this.status.getGold(); 
+    }
 
-  /**
-   * Checks if player has a specific effect
-   */
-  public hasEffect(name: string): boolean {
-    return this.status.effects.some(e => e.name === name);
-  }
+    public setGold(amount: number): void {
+        this.status.setGold(amount);
+    }
 
-  /**
-   * Checks if player is currently stunned
-   */
-  public isStunned(): boolean {
-    return this.status.isStunned();
-  }
+    public gold(change: string): void { 
+        this.status.updateGold(change); 
+    }
+
+    public getHealth(): number { 
+        return this.status.getHealth(); 
+    }
+
+    public isAlive(): boolean { 
+        return this.status.isAlive; 
+    }
+
+    public async isTargetedByItem(itemUsedByAttacker: IBaseItem): Promise<boolean> {
+        if (this.status.hasEffect("vest_immunity")) {
+            console.log(`Player ${this.id}'s Vest activates! They are immune to ${itemUsedByAttacker.name}.`);
+            this.status.effectRemove("vest_immunity");
+            return true;
+        }
+        return false;
+    }
+
+    public async handleBattleLoss(): Promise<void> {
+        console.log(`Player ${this.id} lost a battle.`);
+        this.gold("-3");
+        console.log(`Player ${this.id} lost 3 gold. Current gold: ${this.getGold()}`);
+
+        if (this.inventory.items.length > 0) {
+            const itemToLose = this.inventory.items[0];
+            console.log(`Player ${this.id} lost item: ${itemToLose.name}.`);
+            this.inventory.removeItem(itemToLose);
+        } else {
+            console.log(`Player ${this.id} has no items to lose.`);
+        }
+        await this.move.back(2);
+    }
+
+    public getSaveData() {
+        return {
+            id: this.id,
+            characterId: this.character_id,
+            status: this.status.getSaveData(),
+            inventory: this.inventory.getItems(),
+        };
+    }
+
+    public loadFromSave(saveData: any) {
+        this.id = saveData.id;
+        if (saveData.characterId) {
+            this.selectCharacter(saveData.characterId);
+        }
+        this.status.loadFromSave(saveData.status);
+        this.inventory.loadFromSave(saveData.inventory);
+    }
 }

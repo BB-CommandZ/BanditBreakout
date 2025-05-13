@@ -1,11 +1,12 @@
-import Player from "./Player"
-import Map from "../Map/Map"
-import Move from "./Movement"
+import Player from "./Player";
+import Map from "../Map/Map";
+import Move from "./Movement";
 
 export default class Game {
-    players: Player[]
-    map: Map
-    sessionId: string = ''
+    players: Player[];
+    map: Map;
+    sessionId: string = '';
+    private winner: Player | null = null;
 
     constructor() {
         console.log('Initializing Game...');
@@ -22,42 +23,53 @@ export default class Game {
     
     public startGame(playerCount: number, sessionId: string): void {
         this.sessionId = sessionId;
+        this.winner = null;
         console.log("Game started!");
         for (let player = 1; player <= playerCount; player++) {
-            this.players.push(new Player(this, player))
+            this.players.push(new Player(this, player, 10));
         }
-        this.map.initializeMap(playerCount)
+        this.map.initializeMap(playerCount);
     }
 
-    // Rolls a dice (1-6)
-    public rollDice(): number {
+    public rollDice(playerId: number): number {
+        const player = this.players.find(p => p.id === playerId);
+        if (!player) {
+            console.error(`Player ${playerId} not found for dice roll`);
+            return Math.floor(Math.random() * 6) + 1;
+        }
+        
+        const riggedRoll = player.status.getNextDiceRoll();
+        if (riggedRoll !== null && riggedRoll !== undefined) {
+            console.log(`Using rigged dice roll of ${riggedRoll} for Player ${playerId}.`);
+            player.status.effectRemove("rigged_dice_active");
+            return riggedRoll;
+        }
         return Math.floor(Math.random() * 6) + 1;
     }
 
-    // Moves a player forward by a dice roll and triggers the tile event
     public async movePlayerByDice(playerId: number): Promise<void> {
-        const dice = this.rollDice();
         const player = this.players.find(p => p.id === playerId);
-        if (!player) {
-            console.log(`Player ${playerId} not found.`);
+        if (!player || !player.isAlive) {
+            console.log(`Player ${playerId} not found or is not active.`);
             return;
         }
+        if (player.status.isStunned()) {
+            console.log(`Player ${player.id} is stunned and cannot roll or move!`);
+            player.status.decrementEffectDurations();
+            return;
+        }
+
+        const dice = this.rollDice(playerId);
         console.log(`Player ${playerId} rolled a ${dice}!`);
+        player.status.setRemainingMoves(dice);
+
         await player.move.front(dice);
 
-        const newTileIndex = this.map.findPlayer(playerId);
-        if (newTileIndex === -1) {
-            console.log(`Player ${playerId} not found on any tile after moving.`);
+        if (this.winner) {
             return;
-        }
-        if (this.map.tiles[newTileIndex]) {
-            await this.map.tiles[newTileIndex].getEvent().onStep(playerId, this);
-        } else {
-            console.error(`Error: Tile ${newTileIndex} does not exist on map.`);
         }
     }
 
-    // Returns game state as JSON-serializable object
     public getSaveData(): object {
         return {
             sessionId: this.sessionId,
@@ -72,16 +84,30 @@ export default class Game {
         };
     }
 
-    // Restores game state from saved data
-    public loadFromSave(saveData: any): void {
+    public async loadFromSave(saveData: any): Promise<void> {
         this.sessionId = saveData.sessionId;
-        this.players = saveData.players.map((p: any) => {
+        for (const p of saveData.players) {
             const player = new Player(this, p.id);
             player.setGold(p.gold);
-            p.inventory.forEach((item: any) => player.inventory.addItem(item));
-            p.effects.forEach((effect: any) => player.status.effectAdd(effect.name, effect.duration));
-            return player;
-        });
+            for (const item of p.inventory) {
+                await player.inventory.obtain(item.id);
+            }
+            for (const effect of p.effects) {
+                player.status.effectAdd(effect.name, effect.duration);
+            }
+            this.players.push(player);
+        }
         this.map.loadFromSave(saveData.mapState);
+    }
+
+    public setWinner(player: Player): void {
+        if (!this.winner) {
+            this.winner = player;
+            console.log(`\n🎉🎉🎉 Player ${player.id} has won the game! 🎉🎉🎉`);
+        }
+    }
+
+    public getWinner(): Player | null {
+        return this.winner;
     }
 }

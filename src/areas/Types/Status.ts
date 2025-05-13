@@ -1,76 +1,134 @@
-/**
- * Represents a player's current status
- * 
- * Status tracks:
- * 
- * - Health
- * - Gold
- * - If there is an effect active
- * - Effect
- */
+export interface IEffect {
+    name: string;
+    duration: number;
+}
+
 export default class Status {
-    player_id: number;
-    gold: number;
-    health: number;
-    hasEffect: boolean;
-    effects: {name: string, duration: number}[];
-    
-    /**
-     * Creates a new Status instance
-     * 
-     * @param player_id - The player this status belongs to
-     * @param gold - The amount of gold the player has (defaults to 0)
-     * @param health - The player's current health (defaults to 10)
-     * @param hasEffect - Whether the player has an active effect (defaults to false)
-     * @param effects - Array of effect objects (defaults to empty array)
-     */
-    constructor(player_id: number) {
-        this.player_id = player_id;
-        this.gold = 0;
+    public health: number;
+    public gold: number;
+    public effects: IEffect[];
+    public isAlive: boolean;
+    private remainingMoves: number;
+    private resolvedDecisionPath: number | null;
+    private nextDiceRoll: number | null;
+
+    constructor(initialGold: number = 10) {
         this.health = 10;
-        this.hasEffect = false;
+        this.gold = initialGold;
         this.effects = [];
+        this.isAlive = true;
+        this.remainingMoves = 0;
+        this.resolvedDecisionPath = null;
+        this.nextDiceRoll = null;
     }
 
-    /**
-     * Gets current effects in serializable format
-     */
-    public getEffects(): {name: string, duration: number}[] {
-        return [...this.effects]; // Return copy to prevent modification
+    public getGold(): number {
+        return this.gold;
     }
 
-    /**
-     * Adds a new effect to the player's status
-     * @param effectName - Name of the effect to add
-     * @param duration - Duration in turns (-1 or Infinity for permanent, 0 for immediate, >0 for timed)
-     */
-    effectAdd(effectName: string, duration: number = 1): void {
-        this.effects.push({name: effectName, duration});
-        this.hasEffect = true;
+    public setGold(amount: number): void {
+        this.gold = amount;
     }
 
-    /**
-     * Decrements effect durations and removes expired effects
-     */
-    decrementEffectDurations(): void {
+    public updateGold(change: string): void {
+        const value = parseInt(change);
+        if (!isNaN(value)) {
+            this.gold += value;
+            if (this.gold < 0) this.gold = 0;
+        }
+    }
+
+    public getHealth(): number {
+        return this.health;
+    }
+
+    public setHealth(hp: number): void {
+        this.health = Math.max(0, hp);
+        if (this.health === 0) this.isAlive = false;
+    }
+
+    public effectAdd(name: string, duration: number): void {
+        const existingIndex = this.effects.findIndex(e => e.name === name);
+        if (existingIndex !== -1) {
+            this.effects.splice(existingIndex, 1);
+        }
+        this.effects.push({ name, duration });
+    }
+
+    public effectRemove(name: string): void {
+        this.effects = this.effects.filter(e => e.name !== name);
+    }
+
+    public hasEffect(name: string): boolean {
+        return this.effects.some(e => e.name === name);
+    }
+
+    public decrementEffectDurations(): void {
         this.effects = this.effects.filter(effect => {
             if (effect.duration > 0) {
                 effect.duration--;
                 return effect.duration > 0;
             }
-            return effect.duration === -1 || effect.duration === Infinity;
+            return true;
         });
-        this.hasEffect = this.effects.length > 0;
     }
 
-    /**
-     * Checks if player is currently stunned
-     * @returns true if player has any active stun effects
-     */
-    isStunned(): boolean {
-        const stunEffects = ['lasso_stun', 'poison_stun', 'cursedCoffin_stun'];
-        return this.effects.some(effect => 
-            stunEffects.includes(effect.name) && effect.duration > 0
-        );
+    public isStunned(): boolean {
+        const stunEffects = ["lasso_stun", "poison_stun", "cursedCoffin_stun"];
+        return this.effects.some(e => stunEffects.includes(e.name) && e.duration > 0);
+    }
+
+    public setRemainingMoves(moves: number): void {
+        this.remainingMoves = moves;
+    }
+
+    public getRemainingMoves(): number {
+        return this.remainingMoves;
+    }
+
+    public setResolvedDecisionPath(tileId: number): void {
+        this.resolvedDecisionPath = tileId;
+    }
+
+    public getResolvedDecisionPath(): number | null {
+        return this.resolvedDecisionPath;
+    }
+
+    public clearResolvedDecisionPath(): void {
+        this.resolvedDecisionPath = null;
+    }
+
+    public setNextDiceRoll(roll: number): void {
+        this.nextDiceRoll = roll;
+    }
+
+    public getNextDiceRoll(): number | null {
+        const roll = this.nextDiceRoll;
+        this.nextDiceRoll = null;
+        return roll;
+    }
+
+    public getEffects(): IEffect[] {
+        return [...this.effects];
+    }
+
+    public getSaveData() {
+        return {
+            health: this.health,
+            gold: this.gold,
+            effects: [...this.effects],
+            isAlive: this.isAlive,
+            remainingMoves: this.remainingMoves,
+            resolvedDecisionPath: this.resolvedDecisionPath
+        };
+    }
+
+    public loadFromSave(saveData: any) {
+        this.health = saveData.health;
+        this.gold = saveData.gold;
+        this.effects = [...saveData.effects];
+        this.isAlive = saveData.isAlive;
+        this.remainingMoves = saveData.remainingMoves || 0;
+        this.resolvedDecisionPath = saveData.resolvedDecisionPath || null;
     }
 }
