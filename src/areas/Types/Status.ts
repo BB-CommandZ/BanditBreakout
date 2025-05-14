@@ -11,6 +11,9 @@ export default class Status {
     private remainingMoves: number;
     private resolvedDecisionPath: number | null;
     private nextDiceRoll: number | null;
+    private nextTurnPath: number | null;
+    private remainingStepsAfterDecision: number | null;
+    private isMidMovement: boolean;
 
     constructor(initialGold: number = 10) {
         this.health = 10;
@@ -20,6 +23,9 @@ export default class Status {
         this.remainingMoves = 0;
         this.resolvedDecisionPath = null;
         this.nextDiceRoll = null;
+        this.nextTurnPath = null;
+        this.remainingStepsAfterDecision = null;
+        this.isMidMovement = false;
     }
 
     public getGold(): number {
@@ -106,6 +112,46 @@ export default class Status {
         const roll = this.nextDiceRoll;
         this.nextDiceRoll = null;
         return roll;
+    }
+
+    public setNextTurnPath(tileId: number): void {
+        this.nextTurnPath = tileId;
+    }
+
+    public getNextTurnPath(): number | null {
+        const path = this.nextTurnPath;
+        this.nextTurnPath = null;
+        return path;
+    }
+
+    public clearNextTurnPath(): void {
+        this.nextTurnPath = null;
+    }
+
+    public setRemainingStepsAfterDecision(steps: number): void {
+        this.remainingStepsAfterDecision = steps;
+    }
+
+    public getRemainingStepsAfterDecision(): number | null {
+        const steps = this.remainingStepsAfterDecision;
+        this.remainingStepsAfterDecision = null;
+        return steps;
+    }
+
+    public getStepsRemaining(): number | null {
+        return this.remainingStepsAfterDecision;
+    }
+
+    public clearRemainingStepsAfterDecision(): void {
+        this.remainingStepsAfterDecision = null;
+    }
+
+    public setMidMovement(state: boolean): void {
+        this.isMidMovement = state;
+    }
+
+    public getIsMidMovement(): boolean {
+        return this.isMidMovement;
     }
 
     public getEffects(): IEffect[] {

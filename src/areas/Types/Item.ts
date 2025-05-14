@@ -43,7 +43,8 @@ export class ShovelItem implements IMapItem {
         const targetTile = this.player.game.map.findPlayer(targetPlayer.id);
         if (targetTile !== -1) {
             console.log(`${this.player.id} uses Shovel to move to Player ${targetPlayer.id}'s tile (${targetTile}).`);
-            await this.player.move.to(targetTile);
+            // Pass true for isFinalStepInCall as this is the final landing from using the item
+            await this.player.move.to(targetTile, true);
         }
     }
 }
@@ -131,7 +132,6 @@ export class TumbleweedItem implements IMapItem {
     }
 }
 
-/*
 export class MagicCarpetItem implements IMapItem {
     id = 9; name = "Magic Carpet"; effect = "Carries you over to any region/tile on the map (max 24 tiles away recommended). Cannot roll dice after use.";
     isBattleItem = false; isUsable = true; player: Player;
@@ -142,13 +142,14 @@ export class MagicCarpetItem implements IMapItem {
         if (validatedTileId === null) return;
 
         console.log(`${this.player.id} uses Magic Carpet to travel to Tile ${validatedTileId}.`);
-        await this.player.move.to(validatedTileId);
+        // Pass true for isFinalStepInCall as this is the final landing from using the item
+        await this.player.move.to(validatedTileId, true);
         this.player.status.setRemainingMoves(0);
         this.player.status.setNextDiceRoll(0); // Reset dice roll
     }
 
     private validateTileId(tileId?: number): number | null {
-        if (tileId === undefined || tileId === null) {
+        if (tileId === undefined) {
             console.log("Magic Carpet requires a target tile ID");
             return null;
         }
@@ -159,24 +160,38 @@ export class MagicCarpetItem implements IMapItem {
         return tileId;
     }
 }
-*/
 
-/*
 export class WindStaffItem implements IMapItem {
-    id = 10; name = "Wind Staff"; effect = "Push all other players 2 spaces back from their current position.";
+    id = 10; name = "Wind Staff"; effect = "Choose a player to blow back 3 spaces.";
     isBattleItem = false; isUsable = true; player: Player;
+    targetPlayerId?: number;
+    
     constructor(player: Player) { this.player = player; }
+
     public async use(): Promise<void> {
-        console.log(`${this.player.id} uses Wind Staff!`);
-        for (const otherPlayer of this.player.game.players) {
-            if (otherPlayer.id !== this.player.id && otherPlayer.isAlive) {
-                console.log(`Pushing Player ${otherPlayer.id} back 2 spaces.`);
-                await otherPlayer.move.back(2);
-            }
+        console.log("Wind Staff used directly - target player should be selected via inventory");
+    }
+
+    public async useOnTarget(targetPlayer: Player): Promise<void> {
+        if (targetPlayer.id === this.player.id) {
+            console.log("Cannot use Wind Staff on yourself");
+            return;
+        }
+        if (!targetPlayer.isAlive) {
+            console.log("Cannot use Wind Staff on a dead player");
+            return;
+        }
+
+        console.log(`${this.player.id} uses Wind Staff to blow Player ${targetPlayer.id} back 3 spaces!`);
+        await targetPlayer.move.back(3);
+        
+        // Remove this item after use by finding the instance
+        const itemToRemove = this.player.inventory.items.find(i => i.id === this.id);
+        if (itemToRemove) {
+            this.player.inventory.removeItem(itemToRemove);
         }
     }
 }
-*/
 
 export class ItemFactory {
     public static createItem(itemId: number, player: Player): IBaseItem | null {
@@ -190,8 +205,8 @@ export class ItemFactory {
             case 6: return new RiggedDiceItem(player);
             case 7: return new VSItem(player);
             case 8: return new TumbleweedItem(player);
-            // case 9: return new MagicCarpetItem(player);
-            // case 10: return new WindStaffItem(player);
+            case 9: return new MagicCarpetItem(player);
+            case 10: return new WindStaffItem(player);
             default:
                 console.warn(`ItemFactory: Unknown item ID ${itemId} requested.`);
                 return null;

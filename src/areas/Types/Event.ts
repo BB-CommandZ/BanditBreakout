@@ -8,7 +8,7 @@ export interface IEvent {
     description: string;
     effect: string;
     tile: Tile;
-    onStep(playerId: number, game: Game): Promise<void>; // Changed to Promise<void>
+    onStep(playerId: number, game: Game, isFinalStepInCall: boolean): Promise<void>;
 }
 
 // NOTHING EVENT (TYPE 0)
@@ -19,10 +19,10 @@ export class NothingEvent implements IEvent {
     effect = "Nothing happens.";
     tile: Tile;
 
-    constructor(tile: Tile) { 
-        this.tile = tile; 
+    constructor(tile: Tile) {
+        this.tile = tile;
     }
-    public async onStep(playerId: number, game: Game): Promise<void> { // Now async
+    public async onStep(playerId: number, game: Game, isFinalStepInCall: boolean): Promise<void> {
         console.log(`Player ${playerId} landed on tile ${this.tile.index}. Nothing special happens.`);
     }
 }
@@ -35,17 +35,22 @@ export class SafeEvent implements IEvent {
     effect = "Gain 3 gold.";
     tile: Tile;
 
-    constructor(tile: Tile) { 
-        this.tile = tile; 
+    constructor(tile: Tile) {
+        this.tile = tile;
     }
-    public async onStep(playerId: number, game: Game): Promise<void> { // Now async
+    public async onStep(playerId: number, game: Game, isFinalStepInCall: boolean): Promise<void> {
         const player = game.players.find(p => p.id === playerId);
         if (!player) {
             console.error(`SafeEvent: Player ${playerId} not found.`);
             return;
         }
-        player.setGold(player.getGold() + 3);
-        console.log(`Player ${playerId} landed on a Safe tile ${this.tile.index} and gained 3 gold. Current gold: ${player.getGold()}`);
+        // Only give reward if this is the final landing tile in this movement call
+        if (isFinalStepInCall) {
+            player.setGold(player.getGold() + 3);
+            console.log(`Player ${playerId} landed on a Safe tile ${this.tile.index} and gained 3 gold. Current gold: ${player.getGold()}`);
+        } else {
+            console.log(`Player ${playerId} passed through Safe tile ${this.tile.index} (no reward during movement)`);
+        }
     }
 }
 
@@ -57,10 +62,10 @@ export class BattleEvent implements IEvent {
     effect = "Engage in combat with Wim.";
     tile: Tile;
 
-    constructor(tile: Tile) { 
-        this.tile = tile; 
+    constructor(tile: Tile) {
+        this.tile = tile;
     }
-    public async onStep(playerId: number, game: Game): Promise<void> { // Now async
+    public async onStep(playerId: number, game: Game, isFinalStepInCall: boolean): Promise<void> {
         const player = game.players.find(p => p.id === playerId);
         if (!player) {
             console.error(`BattleEvent: Player ${playerId} not found.`);
@@ -79,10 +84,10 @@ export class BattleEffectEvent implements IEvent {
     effect = "Grants a battle buff for the next combat.";
     tile: Tile;
 
-    constructor(tile: Tile) { 
-        this.tile = tile; 
+    constructor(tile: Tile) {
+        this.tile = tile;
     }
-    public async onStep(playerId: number, game: Game): Promise<void> { // Now async
+    public async onStep(playerId: number, game: Game, isFinalStepInCall: boolean): Promise<void> {
         const player = game.players.find(p => p.id === playerId);
         if (!player) {
             console.error(`BattleEffectEvent: Player ${playerId} not found.`);
@@ -101,20 +106,22 @@ export class ItemEvent implements IEvent {
     effect = "Obtain a random item if inventory has space.";
     tile: Tile;
 
-    constructor(tile: Tile) { 
-        this.tile = tile; 
+    constructor(tile: Tile) {
+        this.tile = tile;
     }
-    public async onStep(playerId: number, game: Game): Promise<void> { // Now async
+    public async onStep(playerId: number, game: Game, isFinalStepInCall: boolean): Promise<void> {
         const player = game.players.find(p => p.id === playerId);
         if (!player) {
             console.error(`ItemEvent: Player ${playerId} not found.`);
             return;
         }
-        if (player.inventory.canAddItem()) {
+        if (isFinalStepInCall && player.inventory.canAddItem()) { // Only get item on final landing
             player.inventory.obtainRandom();
             console.log(`Player ${playerId} searched tile ${this.tile.index} and found an item!`);
+        } else if (isFinalStepInCall) {
+             console.log(`Player ${playerId} searched tile ${this.tile.index} but their inventory is full (Max 3 items).`);
         } else {
-            console.log(`Player ${playerId} searched tile ${this.tile.index} but their inventory is full (Max 3 items).`);
+             console.log(`Player ${playerId} passed through Item tile ${this.tile.index} (no item during movement)`);
         }
     }
 }
@@ -143,10 +150,15 @@ export class ShopEvent implements IEvent {
 
     constructor(tile: Tile) { this.tile = tile; }
 
-    public async onStep(playerId: number, game: Game): Promise<void> {
+    public async onStep(playerId: number, game: Game, isFinalStepInCall: boolean): Promise<void> {
         const player = game.players.find(p => p.id === playerId);
         if (!player) {
             console.error(`ShopEvent: Player ${playerId} not found.`);
+            return;
+        }
+
+        if (!isFinalStepInCall) {
+            console.log(`Player ${playerId} passed through Shop tile ${this.tile.index}.`);
             return;
         }
 
@@ -166,14 +178,14 @@ export class ShopEvent implements IEvent {
                     value: item.id,
                     disabled: player.getGold() < item.price
                 })),
-                { 
+                {
                     type: 'separator',
                     title: '───────────────',
                     value: '',
                     disabled: true
                 },
-                { 
-                    title: "────── Exit Shop ──────", 
+                {
+                    title: "────── Exit Shop ──────",
                     value: -1,
                     disabled: false,
                     description: "Leave without buying anything"
@@ -235,15 +247,19 @@ export class SlotsEvent implements IEvent {
     effect = "Win or lose 0-50 gold randomly.";
     tile: Tile;
 
-    constructor(tile: Tile) { 
-        this.tile = tile; 
+    constructor(tile: Tile) {
+        this.tile = tile;
     }
-    public async onStep(playerId: number, game: Game): Promise<void> { // Now async
+    public async onStep(playerId: number, game: Game, isFinalStepInCall: boolean): Promise<void> {
         const player = game.players.find(p => p.id === playerId);
         if (!player) { return; }
-        const amount = Math.floor(Math.random() * 61) - 10;
-        player.setGold(player.getGold() + amount);
-        console.log(`Player ${playerId} stepped on tile ${this.tile.index}, played slots and ${amount >= 0 ? 'won' : 'lost'} ${Math.abs(amount)} gold. Current gold: ${player.getGold()}`);
+        if (isFinalStepInCall) { // Only play slots on final landing
+            const amount = Math.floor(Math.random() * 61) - 10;
+            player.setGold(player.getGold() + amount);
+            console.log(`Player ${playerId} stepped on tile ${this.tile.index}, played slots and ${amount >= 0 ? 'won' : 'lost'} ${Math.abs(amount)} gold. Current gold: ${player.getGold()}`);
+        } else {
+            console.log(`Player ${playerId} passed through Slots tile ${this.tile.index}.`);
+        }
     }
 }
 
@@ -255,15 +271,19 @@ export class MiningEvent implements IEvent {
     effect = "Gain 10-30 gold randomly.";
     tile: Tile;
 
-    constructor(tile: Tile) { 
-        this.tile = tile; 
+    constructor(tile: Tile) {
+        this.tile = tile;
     }
-    public async onStep(playerId: number, game: Game): Promise<void> { // Now async
+    public async onStep(playerId: number, game: Game, isFinalStepInCall: boolean): Promise<void> {
         const player = game.players.find(p => p.id === playerId);
         if (!player) { return; }
-        const goldGained = Math.floor(Math.random() * 21) + 10;
-        player.setGold(player.getGold() + goldGained);
-        console.log(`Player ${playerId} stepped on tile ${this.tile.index}, mined and gained ${goldGained} gold. Current gold: ${player.getGold()}`);
+        if (isFinalStepInCall) { // Only mine on final landing
+            const goldGained = Math.floor(Math.random() * 21) + 10;
+            player.setGold(player.getGold() + goldGained);
+            console.log(`Player ${playerId} stepped on tile ${this.tile.index}, mined and gained ${goldGained} gold. Current gold: ${player.getGold()}`);
+        } else {
+            console.log(`Player ${playerId} passed through Mining tile ${this.tile.index}.`);
+        }
     }
 }
 
@@ -396,12 +416,15 @@ export class DecisionEvent implements IEvent {
         this.tile = tile;
     }
 
-    public async onStep(playerId: number, game: Game): Promise<void> {
+    public async onStep(playerId: number, game: Game, isFinalStepInCall: boolean): Promise<void> {
         const player = game.players.find(p => p.id === playerId);
         if (!player) {
             console.error(`DecisionEvent: Player ${playerId} not found.`);
             return;
         }
+
+        // Decision tiles always trigger their event regardless of being a final step
+        // as the decision itself is the primary interaction.
 
         const decisionData = this.decisionDialogues[this.tile.index];
         if (!decisionData) {
@@ -414,7 +437,8 @@ export class DecisionEvent implements IEvent {
             }
             if (possiblePaths.length === 1) {
                 console.log(`Only one path forward to tile ${possiblePaths[0]}. Moving automatically.`);
-                await player.move.to(possiblePaths[0]);
+                // Pass true for isFinalStepInCall as this is the final landing in this fallback
+                await player.move.to(possiblePaths[0], true);
                 return;
             }
             const choices = possiblePaths.map(pathIndex => ({
@@ -429,7 +453,8 @@ export class DecisionEvent implements IEvent {
                 choices: choices
             });
             if (typeof response.chosenPath !== 'undefined') {
-                await player.move.to(response.chosenPath);
+                 // Pass true for isFinalStepInCall as this is the final landing in this fallback
+                await player.move.to(response.chosenPath, true);
             }
             return;
         }
@@ -456,8 +481,12 @@ export class DecisionEvent implements IEvent {
         if (typeof response.chosenPath !== 'undefined') {
             const chosenTileId = response.chosenPath;
             console.log(`Player ${playerId} chose path to Tile ${chosenTileId}.`);
-            await player.move.to(chosenTileId);
             player.status.setResolvedDecisionPath(chosenTileId);
+
+            // The remaining steps logic is now handled in the Movement class
+            // We no longer need to check or log remaining steps here.
+            // The Movement class will pick up the resolved path and remaining steps.
+
         } else {
             console.log(`Player ${playerId} made no choice. The path remains open as per map default.`);
         }
@@ -474,12 +503,13 @@ export class CursedCoffinEvent implements IEvent {
 
     constructor(tile: Tile) { this.tile = tile; }
 
-    public async onStep(playerId: number, game: Game): Promise<void> {
+    public async onStep(playerId: number, game: Game, isFinalStepInCall: boolean): Promise<void> {
         const player = game.players.find(p => p.id === playerId);
         if (!player) {
             console.error(`CursedCoffinEvent: Player ${playerId} not found.`);
             return;
         }
+        // Cursed Coffin trap triggers regardless of being a final step
         console.log(`Player ${playerId} stepped on tile ${this.tile.index} and triggered a Cursed Coffin trap!`);
         player.status.effectAdd("cursedCoffin_stun", 2); // Stun for 2 turns
         console.log(`Player ${playerId} is stunned by the Cursed Coffin for 2 rounds.`);
@@ -498,12 +528,13 @@ export class BossBattleEvent implements IEvent {
 
     constructor(tile: Tile) { this.tile = tile; }
 
-    public async onStep(playerId: number, game: Game): Promise<void> {
+    public async onStep(playerId: number, game: Game, isFinalStepInCall: boolean): Promise<void> {
         const player = game.players.find(p => p.id === playerId);
         if (!player) {
             console.error(`BossBattleEvent: Player ${playerId} not found.`);
             return;
         }
+        // Boss battle triggers regardless of being a final step
         console.log(`\n !!! Player ${playerId} has reached Tile ${this.tile.index} and confronts SPINDLE !!!`);
         console.log("(Boss Battle logic to be implemented. For now, player wins by reaching here!)");
         game.setWinner(player);
