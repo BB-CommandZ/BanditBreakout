@@ -147,7 +147,28 @@ export default class Move {
             }
 
             console.log(`Step ${i + 1} of ${by}: Moving from ${currentTileId} to ${nextTileId}`);
-            await this.to(nextTileId);
+            
+            // Check if next tile is a Decision tile (type 8)
+            const nextTile = this.game.map.tiles[nextTileId];
+            if (nextTile.getEvent().type === 8) {
+                // Always trigger Decision tile events immediately
+                await this.to(nextTileId);
+                currentTileId = this.game.map.findPlayer(this.player.id);
+                break; // Stop movement to let player make choice
+            }
+            // For non-decision tiles, only trigger event on final step
+            else if (i === by - 1) {
+                await this.to(nextTileId);
+            } else {
+                // Silent move without triggering event
+                const currentTileId = this.game.map.findPlayer(this.player.id);
+                if (currentTileId !== -1) {
+                    this.game.map.tiles[currentTileId].removePlayer(this.player.id);
+                }
+                this.game.map.tiles[nextTileId].addPlayer(this.player.id);
+                console.log(`Player ${this.player.id} moved silently to Tile ${nextTileId}`);
+            }
+            
             currentTileId = this.game.map.findPlayer(this.player.id);
 
             if (this.game.getWinner()) {
