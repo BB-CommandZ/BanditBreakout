@@ -6,6 +6,7 @@ import { CutScene } from "./scenes/CutScene";
 import { SettingsMenu } from "./scenes/Settings";
 import { EmptyTest } from "./scenes/EmptyTest";
 import { MapScene } from "./scenes/MapScene";
+import BattleResultScene from "./scenes/BattleResultScene";
 
 const config = {
   type: Phaser.AUTO,
@@ -28,6 +29,7 @@ const config = {
     CharacterSelection,
     // SettingsMenu,
     MapScene,
+    BattleResultScene,
   ],
   scale: {
     mode: Phaser.Scale.FIT,

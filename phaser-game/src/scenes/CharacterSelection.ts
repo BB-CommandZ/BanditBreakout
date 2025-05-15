@@ -49,17 +49,17 @@ export class CharacterSelection extends Phaser.Scene {
     this.load.setBaseURL(serverUrl);          
     this.load.setPath('assets');       
       
-    this.load.image("overlayBacking", encodeURIComponent("character_selection/backing.png"));
-    this.load.image("overlayFrame", encodeURIComponent("character_selection/frame.png"));
-    this.load.image("overlayPage", encodeURIComponent("character_selection/page.png"));
-    this.load.image("ovelayBackSign", encodeURIComponent("character_selection/backSign.png"));
-    this.load.image("charSign", encodeURIComponent("character_selection/charSign.png"));
+    this.load.image("overlayBacking", encodeURIComponent("tempAssets/charSelection/backing.png"));
+    this.load.image("overlayFrame", encodeURIComponent("tempAssets/charSelection/frame.png"));
+    this.load.image("overlayPage", encodeURIComponent("tempAssets/charSelection/page.png"));
+    this.load.image("ovelayBackSign", encodeURIComponent("tempAssets/charSelection/backSign.png"));
+    this.load.image("charSign", encodeURIComponent("tempAssets/charSelection/charSign.png"));
 
-    this.load.svg("buckshot", encodeURIComponent("character_asset/buckshotFront.svg"));
-    this.load.svg("serpy", encodeURIComponent("character_asset/serpyFront.svg"));
-    this.load.svg("grit", encodeURIComponent("character_asset/gritFront.svg"));
-    this.load.svg("scout", encodeURIComponent("character_asset/scoutFront.svg"));
-    this.load.svg("solstice", encodeURIComponent("character_asset/solsticeFront.svg"));
+    this.load.svg("buckshot", encodeURIComponent("tempAssets/charSelection/buckshotFront.svg"));
+    this.load.svg("serpy", encodeURIComponent("tempAssets/charSelection/serpyFront.svg"));
+    this.load.svg("grit", encodeURIComponent("tempAssets/charSelection/gritFront.svg"));
+    this.load.svg("scout", encodeURIComponent("tempAssets/charSelection/scoutFront.svg"));
+    this.load.svg("solstice", encodeURIComponent("tempAssets/charSelection/solsticeFront.svg"));
 
     WebFontLoader.load({
       custom: {
@@ -384,17 +384,18 @@ selectInteractive.on('pointerdown', () => {
   }
 
   // Utility to map character IDs to asset paths
-  private getCharacterAssetPath(characterId: number): string {
-    const characterMap: { [key: number]: string } = {
-      1: 'character_asset/buckshotFront.svg',
-      2: 'character_asset/serpyFront.svg',
-      3: 'character_asset/gritFront.svg',
-      4: 'character_asset/solsticeFront.svg',
-      5: 'character_asset/scoutFront.svg'
-      // Add other character mappings here
-    };
-    return characterMap[characterId] || 'character_asset/solsticeFront.svg'; // Default to Solstice if ID not found
-  }
+    // Utility to map character IDs to asset paths (relative to phaser-game directory)
+    private getCharacterAssetPath(characterId: number): string {
+      const characterMap: { [key: number]: string } = {
+        1: 'tempAssets/charSelection/buckshotFront.svg',
+        2: 'tempAssets/charSelection/serpyFront.svg',
+        3: 'tempAssets/charSelection/gritFront.svg',
+        4: 'tempAssets/charSelection/solsticeFront.svg',
+        5: 'tempAssets/charSelection/scoutFront.svg'
+        // Add other character mappings here
+      };
+      return characterMap[characterId] || 'tempAssets/charSelection/solsticeFront.svg'; // Default to Solstice if ID not found
+    }
 
 
 }

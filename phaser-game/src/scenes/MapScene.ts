@@ -1,4 +1,4 @@
-import { io, Socket } from 'socket.io-client';
+import io, { Socket } from 'socket.io-client';
 
 export class MapScene extends Phaser.Scene {
   
@@ -15,7 +15,7 @@ export class MapScene extends Phaser.Scene {
       }
     }
 
-    private player: Phaser.GameObjects.Image;
+    private player?: Phaser.GameObjects.Image;
     private tileLocations: Map<number, { cx: number, cy: number, r: number }> = new Map();
     private socket: any; // Socket.io client
     //TODO
@@ -51,39 +51,47 @@ export class MapScene extends Phaser.Scene {
     preload() {
       const serverUrl = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000';
       this.load.setBaseURL(serverUrl);          
-      this.load.setPath('assets');       
 
-      // Access the passed data directly in preload                                                                                                                                             
-      const data = this.scene.settings.data as { characterAsset?: string };                                                                                                                     
-      if (data && data.characterAsset) {                                                                                                                                                        
-        this.characterAsset = data.characterAsset;                                                                                                                                              
-        console.warn(`Set character asset from scene data in preload: ${this.characterAsset}`);                                                                                                 
-      } else {                                                                                                                                                                                  
-        console.warn('No character asset provided in preload, using default:', this.characterAsset);                                                                                            
-      }                  
+      // Access the passed data directly in preload
+      const data = this.scene.settings.data as { characterAsset?: string };
+      if (data && data.characterAsset) {
+        this.characterAsset = data.characterAsset;
+        console.warn(`Set character asset from scene data in preload: ${this.characterAsset}`);
+      } else {
+        console.warn('No character asset provided in preload, using default:', this.characterAsset);
+      }
       
-      this.load.image('backgroundMap', encodeURIComponent('board/background.png'));   
+      this.load.image('backgroundMap', encodeURIComponent('assets/tempAssets/background.png'));   
 
-      //board/BoardWithBridgesNumbered.svg, board/Board with Bridges.svg 
-      this.load.svg('mapOverlay', encodeURIComponent('board/BoardWithBridgesNumbered.svg'), {
+      //board/BoardWithBridgesNumbered.svg, board/Board with Bridges.svg
+      // Using 'Board with Bridges.svg' based on file structure, assuming it's the intended asset
+      this.load.svg('mapOverlay', encodeURIComponent('assets/tempAssets/Board with Bridges.svg'), {
         width: 1920,
         height: 1080
       });
 
       // Dynamically load the player sprite based on the selected character
-      this.load.svg('player', encodeURIComponent(this.characterAsset), {
+      // The characterAsset path is already set correctly in init/preload from CharacterSelection
+      // The characterAsset path itself needs the 'assets/' prefix now.
+      this.load.svg('player', encodeURIComponent(`assets/${this.characterAsset}`), {
         width: 64,
         height: 64
       });
 
       // Load the tile locations CSV file
-      this.load.text('tileLocations', encodeURIComponent('board/tilesLocation.csv'));
+      // This file appears to be missing from the phaser-game directory.
+      // The frontend is requesting 'board/tilesLocation.csv'.
+      // I cannot fix this 404 without the actual file.
+      this.load.text('tileLocations', encodeURIComponent('assets/board/tilesLocation.csv'));
       
       // Load the dice videos with error handling
       console.log('Loading dice videos...');
+      // These video files appear to be missing from the phaser-game directory.
+      // I cannot fix these 404s without the actual files.
       for (let i = 1; i <= 6; i++) {
         const key = `dice${i}`;
-        this.load.video(key, encodeURIComponent(`dice/dice${i}.mp4`), 'loadeddata', false, true);
+        // Removed the extra 'true' argument from load.video
+        this.load.video(key, encodeURIComponent(`assets/dice/dice${i}.mp4`), 'loadeddata', false);
         this.load.on(`filecomplete-video-${key}`, () => {
           console.log(`Video ${key} loaded successfully`);
         });
@@ -168,6 +176,32 @@ export class MapScene extends Phaser.Scene {
         this.startGame();
         startButton.destroy(); // Remove the button after clicking
       });
+
+      // Temporary button to trigger BattleResultScene for testing
+      const testButton = this.add.text(100, 300, 'Test Win Scene', {
+        fontSize: '32px',
+        backgroundColor: '#fff',
+        color: '#000',
+        padding: { x: 10, y: 5 }
+      })
+      .setInteractive()
+      .on('pointerdown', () => {
+        console.log('Test Win Scene button clicked, directly starting BattleResultScene: win'); // Updated logging
+        this.scene.start('BattleResultScene', { outcome: 'win' });
+      });
+
+      // Temporary button to trigger BattleResultScene for testing (lose)
+      const testLoseButton = this.add.text(100, 350, 'Test Lose Scene', {
+        fontSize: '32px',
+        backgroundColor: '#fff',
+        color: '#000',
+        padding: { x: 10, y: 5 }
+      })
+      .setInteractive()
+      .on('pointerdown', () => {
+        console.log('Test Lose Scene button clicked, directly starting BattleResultScene: lose'); // Updated logging
+        this.scene.start('BattleResultScene', { outcome: 'lose' });
+      });
     }
 
     // Parse the CSV file and store tile locations in a map
@@ -197,7 +231,7 @@ export class MapScene extends Phaser.Scene {
       let targetSprite = this.playerSprites.get(playerId);
       if (!targetSprite) {
         // Create a sprite for this player if it doesn't exist
-        if (playerId === this.playerId) {
+        if (playerId === this.playerId && this.player) { // Check if this.player is defined
           targetSprite = this.player; // Use the pre-created player sprite with tint and pulse
         } else {
           // Create a new sprite for other players without any tint or pulse
@@ -208,19 +242,23 @@ export class MapScene extends Phaser.Scene {
         console.log(`Created sprite for player ${playerId}`);
       }
       
-      if (y !== undefined) {
-        // If y is provided, treat xOrTile as x coordinate
-        targetSprite.setPosition(xOrTile, y);
-        console.log(`Player ${playerId} moved to (${xOrTile}, ${y})`);
-      } else {
-        // Treat xOrTile as tile number and look up coordinates
-        const tileData = this.tileLocations.get(xOrTile);
-        if (tileData) {
-          targetSprite.setPosition(tileData.cx, tileData.cy);
-          console.log(`Player ${playerId} moved to tile ${xOrTile} at (${tileData.cx}, ${tileData.cy})`);
+      if (targetSprite) { // Add check for targetSprite being defined
+        if (y !== undefined) {
+          // If y is provided, treat xOrTile as x coordinate
+          targetSprite.setPosition(xOrTile, y);
+          console.log(`Player ${playerId} moved to (${xOrTile}, ${y})`);
         } else {
-          console.error(`Tile number ${xOrTile} not found in tile locations for player ${playerId}`);
+          // Treat xOrTile as tile number and look up coordinates
+          const tileData = this.tileLocations.get(xOrTile);
+          if (tileData) {
+            targetSprite.setPosition(tileData.cx, tileData.cy);
+            console.log(`Player ${playerId} moved to tile ${xOrTile} at (${tileData.cx}, ${tileData.cy})`);
+          } else {
+            console.error(`Tile number ${xOrTile} not found in tile locations for player ${playerId}`);
+          }
         }
+      } else {
+          console.error(`Target sprite not found for player ${playerId}`);
       }
     }
     
@@ -287,7 +325,7 @@ export class MapScene extends Phaser.Scene {
         this.socket.emit('joinGame', this.gameId, this.playerId);
       });
       
-      this.socket.on('disconnect', (reason) => {
+      this.socket.on('disconnect', (reason: any) => {
         console.log(`Disconnected from server, reason: ${reason}`);
       });
       
@@ -309,7 +347,7 @@ export class MapScene extends Phaser.Scene {
             
             // Ensure a sprite exists for this player, but don't recreate if it exists
             if (!this.playerSprites.has(id)) {
-              if (id === this.playerId) {
+              if (id === this.playerId && this.player) { // Add check for this.player being defined
                 this.playerSprites.set(id, this.player); // Use the existing tinted and pulsing sprite for local player
               } else {
                 // For other players, load their character sprite if character_id is provided
@@ -351,7 +389,7 @@ export class MapScene extends Phaser.Scene {
           // Update UI to show player and their roll
           // Create sprite for new player if needed, but don't recreate for local player
           if (!this.playerSprites.has(data.playerId)) {
-            if (data.playerId === this.playerId) {
+            if (data.playerId === this.playerId && this.player) { // Add check for this.player being defined
               this.playerSprites.set(data.playerId, this.player); // Use the existing tinted and pulsing sprite
             } else {
               const newPlayerSprite = this.add.image(1683, 991, 'player').setOrigin(0.5, 0.5);
@@ -438,6 +476,16 @@ export class MapScene extends Phaser.Scene {
           }
         });
 
+        // Listen for battle outcome event
+        this.socket.on('battleOutcome', (data: { playerId: number, outcome: 'win' | 'lose' }) => {
+            console.log(`Received battle outcome event:`, data); // Added logging
+            if (data.playerId === this.playerId) {
+                console.log(`Starting BattleResultScene with outcome: ${data.outcome}`); // Added logging
+                // Transition to the BattleResultScene, passing the outcome
+                this.scene.start('BattleResultScene', { outcome: data.outcome });
+            }
+        });
+
         this.socket.on('pathChoiceRequired', (data: { playerId: number; options: number[]; stepsRemaining: number }) => {
           if (data.playerId !== this.playerId) return;
           this.showPathChoiceUI(data.options, (chosen) => {
@@ -472,34 +520,35 @@ export class MapScene extends Phaser.Scene {
     // Update visual effect for the next player to move
     private updateNextPlayerEffect() {
       this.playerSprites.forEach((sprite, playerId) => {
-        this.tweens.killTweensOf(sprite); // Stop any existing tweens for this sprite
-        sprite.scaleX = 1; // Reset scale
-        sprite.scaleY = 1;
-        
-        if (playerId === this.currentPlayerTurn) {
-          // Add fast pulsing effect for the current turn player (if not local player)
-          this.tweens.add({
-            targets: sprite,
-            scaleX: 1.2,
-            scaleY: 1.2,
-            yoyo: true, // Makes the tween go back and forth
-            repeat: -1, // Repeat indefinitely
-            duration: 500, // Fast pulse with 0.5 second duration
-            ease: 'Sine.easeInOut' // Smooth easing for the pulse
-          });
-        } else {
-          // Add normal pulsing effect for non-turn players (if not local player)
-          this.tweens.add({
-            targets: sprite,
-            scaleX: 1.1,
-            scaleY: 1.1,
-            yoyo: true, // Makes the tween go back and forth
-            repeat: -1, // Repeat indefinitely
-            duration: 1000, // Normal pulse with 1 second duration
-            ease: 'Sine.easeInOut' // Smooth easing for the pulse
-          });
+        if (sprite) { // Add check for sprite being defined
+          this.tweens.killTweensOf(sprite); // Stop any existing tweens for this sprite
+          sprite.scaleX = 1; // Reset scale
+          sprite.scaleY = 1;
+          
+          if (playerId === this.currentPlayerTurn) {
+            // Add fast pulsing effect for the current turn player (if not local player)
+            this.tweens.add({
+              targets: sprite,
+              scaleX: 1.2,
+              scaleY: 1.2,
+              yoyo: true, // Makes the tween go back and forth
+              repeat: -1, // Repeat indefinitely
+              duration: 500, // Fast pulse with 0.5 second duration
+              ease: 'Sine.easeInOut' // Smooth easing for the pulse
+            });
+          } else {
+            // Add normal pulsing effect for non-turn players (if not local player)
+            this.tweens.add({
+              targets: sprite,
+              scaleX: 1.1,
+              scaleY: 1.1,
+              yoyo: true, // Makes the tween go back and forth
+              repeat: -1, // Repeat indefinitely
+              duration: 1000, // Normal pulse with 1 second duration
+              ease: 'Sine.easeInOut' // Smooth easing for the pulse
+            });
+          }
         }
-        
       });
     }
     
@@ -612,4 +661,3 @@ export class MapScene extends Phaser.Scene {
       }
     }
   }
-  
