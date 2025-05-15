@@ -1,6 +1,8 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
+import path from 'path'; // Import path module
+import cors from 'cors'; // Import cors middleware
 import Game from './areas/Types/Game';
 import Player from './areas/Types/Player';
 import { getAssetByFilename } from './db/operations/assetsOps';
@@ -20,6 +22,8 @@ const io = new Server(server, {
   pingInterval: 10000, // Send ping every 10 seconds
   pingTimeout: 5000    // Disconnect if no pong received within 5 seconds
 });
+
+app.use(cors()); // Enable CORS for all routes
 
 const PORT = process.env.PORT || 3000;
 const DB_NAME = process.env.DB_NAME || 'game_assets';
@@ -72,7 +76,7 @@ io.on('connection', (socket) => {
       socket.emit('gameCreated', { gameId, name });
       // Send the freshly-built game state to everyone already in the room (just the host for now)
       io.to(gameId).emit('gameState', serializeGame(activeGames[gameId]));
-    } catch (error) {
+    } catch (error: any) { // Explicitly type error as any
       socket.emit('error', { message: 'Failed to create game', details: error.message || 'Unknown error' });
       console.error('Error creating game:', error);
     }
@@ -447,81 +451,10 @@ io.on('connection', (socket) => {
   });
 });
 
-app.use('/assets/', async (req, res) => {
-  // Add CORS headers to allow requests from any origin
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  
-  const filename = decodeURIComponent(req.originalUrl.replace('/assets/', ''));
-  console.log(`Asset request: ${filename}`);
-  try {
-    const asset = await getAssetByFilename(filename);
-    if (asset) {
-      // Set appropriate content type based on asset metadata or filename extension
-      // Extract just the filename from the path for extension checking
-      const baseFilename = filename.split('/').pop() || filename;
-      let contentType = 'application/octet-stream';
-      if (baseFilename.toLowerCase().endsWith('.png')) contentType = 'image/png';
-      else if (baseFilename.toLowerCase().endsWith('.jpg') || baseFilename.toLowerCase().endsWith('.jpeg')) contentType = 'image/jpeg';
-      else if (baseFilename.toLowerCase().endsWith('.gif')) contentType = 'image/gif';
-      else if (baseFilename.toLowerCase().endsWith('.svg')) contentType = 'image/svg+xml';
-      else if (baseFilename.toLowerCase().endsWith('.mp3')) contentType = 'audio/mpeg';
-      else if (baseFilename.toLowerCase().endsWith('.wav')) contentType = 'audio/wav';
-      else if (baseFilename.toLowerCase().endsWith('.mp4')) contentType = 'video/mp4';
-      else if (baseFilename.toLowerCase().endsWith('.json')) contentType = 'application/json';
-      
-      res.setHeader('Content-Type', contentType);
-      
-      // Check if asset.data exists (from regular collection) or if we need to stream from GridFS
-      if (asset.data) {
+// Serve static assets from the 'backend/assets' directory at the '/assets' endpoint
+app.use('/assets', express.static(path.join(__dirname, '../phaser-game')));
 
-        // Check if asset.data is a Buffer or needs conversion
-        let buf;
-        if (Buffer.isBuffer(asset.data)) {
-          buf = asset.data;
-        } else if (typeof asset.data === 'string') {
-          buf = Buffer.from(asset.data, 'base64');
-        } else {
-          console.error('Unexpected asset.data type:', typeof asset.data);
-          return res.status(500).send('Error processing asset data');
-        }
-
-        // (optional) set length so clients know when the stream ends
-        res.setHeader('Content-Length', buf.length);
-
-        return res.send(buf);
-
-
-      } else {
-
-        // ── Stream large assets directly from GridFS ──
-        const client = new MongoClient(process.env.MONGODB_URI || 'mongodb://localhost:27017');
-        await client.connect();
-        const db = client.db(DB_NAME);
-        const bucket = new GridFSBucket(db, { bucketName: GRIDFS_BUCKET });
-
-        const downloadStream = bucket.openDownloadStreamByName(filename);
-
-        downloadStream.on('error', (err) => {
-          console.error('GridFS stream error:', err);
-          if (!res.headersSent) res.status(404).send('Asset not found');
-          client.close();
-        });
-
-        downloadStream.on('end', () => client.close());
-
-        // Pipe the file contents straight to the HTTP response
-        return downloadStream.pipe(res);
-      }
-    } else {
-      res.status(404).send('Asset not found');
-    }
-  } catch (error) {
-    console.error('Error serving asset:', error);
-    res.status(500).send('Error retrieving asset');
-  }
-});
+// The rest of your server code remains the same
 
 // List of critical assets to preload (adjust based on your needs)
 const criticalAssets = [
@@ -544,7 +477,10 @@ const criticalAssets = [
   'dice/dice3.mp4',
   'dice/dice4.mp4',
   'dice/dice5.mp4',
-  'dice/dice6.mp4'
+  'dice/dice6.mp4',
+  'background.png', // Added battle result assets
+  'defeat.svg',
+  'victory.svg'
 ];
 
 // Function to preload assets into Redis
