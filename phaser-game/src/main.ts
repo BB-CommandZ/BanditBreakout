@@ -1,6 +1,6 @@
 import { Start } from "./scenes/Start";
 import { CharacterSelection } from "./scenes/CharacterSelection";
-import { MainScreen, Host, Code, Room } from "./scenes/MainScreen";
+import { MainScreen, ConnectionMenu, HostRoom, JoinCode, } from "./scenes/MainScreen";
 import { LoadingScreen } from "./scenes/LoadingScreen";
 import { CutScene } from "./scenes/CutScene";
 import { SettingsMenu } from "./scenes/Settings";
@@ -17,15 +17,15 @@ const config = {
   backgroundColor: "#000000",
   pixelArt: false,
   scene: [
-    EmptyTest,
+    // EmptyTest,
     // Start,
     // CutScene,
     // LoadingScreen,
-    // MainScreen,
-    // Host,
-    // Code,
-    // Room,
-    // CharacterSelection,
+    MainScreen,
+    ConnectionMenu,
+    HostRoom,
+    JoinCode,
+    CharacterSelection,
     // SettingsMenu,
     // MapScene,
   ],

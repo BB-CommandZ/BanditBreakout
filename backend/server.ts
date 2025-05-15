@@ -53,28 +53,39 @@ io.on('connection', (socket) => {
     socket.on('hostLobby', async () => {
       try {
         let gameId = uuidv4().replace(/-/g, '').substring(0, 6)
-        activeGames[gameId] = new Game(gameId);
-        const game = activeGames[gameId];
-        game.addPlayer()
-        socket.join(gameId);
-        socket.emit('gameId', gameId);
-      } catch (error) {
+        gameId = gameId.toLowerCase()
+        if (!activeGames[gameId]) {
+          activeGames[gameId] = new Game(gameId);
+          const game = activeGames[gameId];
+          game.addPlayer();
+          console.log(`Player 1 added!`);
+          socket.join(gameId);
+          socket.emit('gameId', gameId);
+        } else {
+          console.log(`Game with ID ${gameId} already exists.`);
+        }
+      }catch (error) {
         socket.emit('error', { message: 'Failed to create game', details: error || 'Unknown error' });
         console.error('Error creating game:', error);
       }
     })
 
     socket.on('joinLobby', async (gameId) => {
+      gameId = gameId.toLowerCase()
       try {
         if (activeGames[gameId]) {
           const game = activeGames[gameId];
+          const playerId = game.players.length + 1;
           game.addPlayer();
+          console.log(`Player ${playerId} added!`);
           socket.join(gameId);
-          socket.emit('joinedLobby', { gameId, playerId: game.players.length });
-          io.to(gameId).emit('playerJoined', { playerId: game.players.length });
+          socket.emit('joinedLobby', { gameId, playerId });
+          io.to(gameId).emit('playerJoined', { playerId });
           io.to(gameId).emit('gameState', serializeGame(game));
+        } else {
+          socket.emit('error', { message: 'Game does not exist' });
         }
-      } catch (error) {
+      }  catch (error) {
         socket.emit('error', { message: 'Failed to join game', details: error || 'Unknown error' });
         console.error('Error joining game:', error);
       }

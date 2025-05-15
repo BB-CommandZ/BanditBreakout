@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { io, Socket } from "socket.io-client";
-import Player from "../../../backend/areas/Types/Player";
+
 
 export class EmptyTest extends Phaser.Scene {
   private socket!: Socket;
@@ -26,7 +26,7 @@ export class EmptyTest extends Phaser.Scene {
     });
 
     this.socket.on("gameState", (gameState) => {
-      this.updatePlayerList(gameState.players);
+      
     });
 
     this.socket.on("error", (error) => {
@@ -84,13 +84,7 @@ export class EmptyTest extends Phaser.Scene {
       this.updateGameState(`Game ID: ${gameId}`);
     });
   }
-  
-  private updatePlayerList(players: Player[]) {
-    const playerDetails = players.map(
-      (player) => `ID: ${player.id}, Gold: ${player.status.gold}, Health: ${player.status.health}`
-    );
-    this.playerListText.setText("Players:\n" + playerDetails.join("\n"));
-  }
+
 
   private updateGameCode(gameId: string) {
     this.gameCode.setText(`${gameId}`);
