@@ -1,4 +1,17 @@
 import Player from "./Player";
+export const ITEM_LIST: { id: number; name: string }[] = [
+    { id: 0, name: "Lasso" },
+    { id: 1, name: "Shovel" },
+    { id: 2, name: "Vest" },
+    { id: 3, name: "Poison Crossbow" },
+    { id: 4, name: "Mirage Teleporter" },
+    { id: 5, name: "Cursed Coffin" },
+    { id: 6, name: "Rigged Dice" },
+    { id: 7, name: "V.S." },
+    { id: 8, name: "Tumbleweed" },
+    { id: 9, name: "Magic Carpet" },
+    { id: 10, name: "Wind Staff" },
+];
 
 /**
  * Base interface for all items

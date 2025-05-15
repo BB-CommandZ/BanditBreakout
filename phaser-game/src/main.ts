@@ -6,6 +6,7 @@ import { CutScene } from "./scenes/CutScene";
 import { SettingsMenu } from "./scenes/Settings";
 import { EmptyTest } from "./scenes/EmptyTest";
 import { MapScene } from "./scenes/MapScene";
+import { Gui } from "./scenes/Gui";
 
 const config = {
   type: Phaser.AUTO,
@@ -18,6 +19,7 @@ const config = {
   pixelArt: false,
   scene: [
     EmptyTest,
+    Gui
     // Start,
     // CutScene,
     // LoadingScreen,
@@ -25,8 +27,8 @@ const config = {
     // Host,
     // Code,
     // Room,
-    Guide,
-    CharacterSelection,
+    // Guide,
+    // CharacterSelection,
     // SettingsMenu,
     // MapScene,
   ],
