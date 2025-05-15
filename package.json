@@ -4,16 +4,16 @@
   "description": "There will be a bunch of useful stuff",
   "main": "index.tsx",
   "scripts": {
-    "game": "concurrently \"redis-server\" \"npm run server\" \"npm start\"",
+    "game": "NODE_OPTIONS=--max-old-space-size=4096 concurrently \"redis-server\" \"npm run server\" \"npm start\"",
     "test": "jest",
     "test:cache": "tsx backend/tests/cacheTest.ts",
     "test:assets": "jest backend/tests/assetsOpsTest.ts",
     "test:client": "tsx backend/tests/test-client.ts",
     "test:simple-client": "tsx backend/tests/simple-test-client.ts",
     "test:db": "tsx backend/tests/dbTest.ts",
-    "dev": "vite --port 30006",
-    "start": "vite phaser-game --port 30006",
-    "server": "tsx backend/server.ts",
+    "dev": "vite --port 30006 --host 0.0.0.0",
+    "start": "NODE_OPTIONS=--max-old-space-size=4096 vite phaser-game --port 30006 --host 0.0.0.0",
+    "server": "NODE_OPTIONS=--max-old-space-size=4096 HOST=0.0.0.0 tsx backend/server.ts",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "live": "live-server --port=30006"
@@ -23,6 +23,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/jest": "^29.5.14",
+    "@types/socket.io-client": "^1.4.36",
     "@types/webfontloader": "^1.6.38",
     "@vitejs/plugin-react": "^4.4.1",
     "concurrently": "^9.1.2",
@@ -38,7 +39,6 @@
     "vite": "^6.3.5"
   },
   "dependencies": {
-    "@esbuild/darwin-arm64": "^0.25.4",
     "@types/express": "^5.0.1",
     "@types/mongodb": "^4.0.7",
     "@types/node": "^22.15.3",

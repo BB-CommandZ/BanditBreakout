@@ -8,7 +8,7 @@ GridFS Bucket (large files): assets_fs
 📄 Files in MongoDB Collection (assets):
 Atlas atlas-xnsupc-shard-0 [primary] game_assets> 
 Atlas atlas-xnsupc-shard-0 [primary] game_assets> 
-Atlas atlas-xnsupc-shard-0 [primary] game_assets> Total files in collection: 446
+Atlas atlas-xnsupc-shard-0 [primary] game_assets> Total files in collection: 449
 
 
 Atlas atlas-xnsupc-shard-0 [primary] game_assets> ... ... ... ... ... ... ... Filenames:
@@ -458,6 +458,9 @@ Atlas atlas-xnsupc-shard-0 [primary] game_assets> ... ... ... ... ... ... ... Fi
   - character_asset/buckshotFront.svg
   - character_asset/gritFront.svg
   - board/tilesLocation.csv
+  - board/BoardWithBridgesNumbered.svg
+  - character_selection/backSign.png
+  - character_selection/charSign.png
 
 Atlas atlas-xnsupc-shard-0 [primary] game_assets> 
 🎥 Files in GridFS Bucket (assets_fs):

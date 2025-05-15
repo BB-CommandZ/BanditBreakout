@@ -22,6 +22,8 @@ export default class Player {
   status: Status;
   inventory: Inventory;
   move: Move;
+  // tracks forks that still need a decision from the client
+  pendingMove?: { stepsRemaining: number };
 
 
     /**

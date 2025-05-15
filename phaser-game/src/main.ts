@@ -22,15 +22,16 @@ const config = {
     // Start,
     // CutScene,
     // LoadingScreen,
+
     MainScreen,
     ConnectionMenu,
     HostRoom,
     JoinCode,
     HostJoinWorkaround,
     // Guide,
-    CharacterSelection,
+    // CharacterSelection,
     // SettingsMenu,
-    // MapScene,
+    MapScene,
   ],
   scale: {
     mode: Phaser.Scale.FIT,

@@ -87,10 +87,43 @@ export default class Map {
         this.connectMap()
         this.assignPathDirections();
         this.eventMap()
-        this.setPlayerPosAll(0, this.countPlayers(playerCount));
+        //TODO
+        // this.setPlayerPosAll(0, this.countPlayers(playerCount));
         this.updateMap()
 
         console.log(`Map initialized${EOL}`)
+                                                                                                                                                          
+        // Log forward and backward connections for specified tiles after initialization                                                                                                        
+        const tilesToCheck = [5, 13, 60, 54, 57, 73, 79, 88, 97, 39, 28];                                                                                                                       
+        tilesToCheck.forEach(tileIndex => {                                                                                                                                                     
+            const forward = this.tiles[tileIndex].getFront();                                                                                                                                   
+            const backward = this.tiles[tileIndex].getBack();                                                                                                                                   
+            console.log(`Tile ${tileIndex} connections - Back: [${backward.join(', ')}], Front: [${forward.join(', ')}]`);                                                                      
+                                                                                                                                                                                                
+            // Check if forward tiles point back to this tile                                                                                                                                   
+            forward.forEach(fwdTile => {                                                                                                                                                        
+                const backOfFwd = this.tiles[fwdTile].getBack();                                                                                                                                
+                if (!backOfFwd.includes(tileIndex)) {                                                                                                                                           
+                    console.log(`Warning: Tile ${fwdTile} (forward of ${tileIndex}) does not have ${tileIndex} in its back connections: [${backOfFwd.join(', ')}]`);                            
+                    // Fix the connection by adding tileIndex to back connections of fwdTile                                                                                                       
+                    this.tiles[fwdTile].setBack([...backOfFwd, tileIndex]);                                                                                                                     
+                    console.log(`Fixed: Added tile ${tileIndex} to back connections of tile ${fwdTile}`);                                                                                       
+                }                                                                                                                                                                               
+            });                                                                                                                                                                                 
+                                                                                                                                                                                                
+            // Check if backward tiles point forward to this tile                                                                                                                               
+            backward.forEach(bckTile => {                                                                                                                                                       
+                const frontOfBck = this.tiles[bckTile].getFront();                                                                                                                              
+                if (!frontOfBck.includes(tileIndex)) {                                                                                                                                          
+                    console.log(`Warning: Tile ${bckTile} (backward of ${tileIndex}) does not have ${tileIndex} in its front connections: [${frontOfBck.join(', ')}]`);                         
+                    // Fix the connection by adding tileIndex to front connections of bckTile                                                                                                      
+                    this.tiles[bckTile].setFront([...frontOfBck, tileIndex]);                                                                                                                   
+                    console.log(`Fixed: Added tile ${tileIndex} to front connections of tile ${bckTile}`);                                                                                      
+                }                                                                                                                                                                               
+            });                                                                                                                                                                                 
+        }); 
+        
+        
     }
 
     // UPDATING MAP (REFRESH)
@@ -117,6 +150,14 @@ export default class Map {
         tile.hasPlayerOnTile = true;
         playerIds.forEach(player_Id => tile.addPlayer(player_Id))
         console.log(`Set player positions to start${EOL}`)
+    }
+
+    public setPlayerPos(pos: number, playerId: number) {
+        let tile = this.tiles[pos];
+        tile.hasPlayerOnTile = true;
+
+        tile.addPlayer(playerId);
+        console.log(`Set player ${playerId} positions to start${EOL}`);
     }
     
     // helper for looking up player position

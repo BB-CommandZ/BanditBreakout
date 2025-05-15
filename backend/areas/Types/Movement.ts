@@ -57,28 +57,54 @@ export default class Move {
         }
     }
 
-    public front(by: number): void {
+    public front(by: number): { success: boolean; pendingChoice?: { options: number[]; stepsRemaining: number } } {
         let currentTile = this.game.map.findPlayer(this.player.id);
+        if (currentTile === -1) {
+            console.log(`Wrong tile, ${currentTile}`);
+        }
         for (let i = 0; i < by; i++) {
-
+            console.log(`Step ${i+1}/${by}: Player ${this.player.id} at tile ${currentTile}`);
             const frontArray = this.game.map.tiles[currentTile].getFront();
+            console.log(`Forward options from tile ${currentTile}: [${frontArray.join(', ')}]`);
 
             if (frontArray.length === 0) {
-                console.log(`THIS SHOULD CONNECT THE BOSS BATTLE`); // TODO
+                console.log(`THIS SHOULD CONNECT THE BOSS BATTLE - No forward connections found at tile ${currentTile}. Moving to tile 43.`); // TODO
                 this.player.move.to(43)
                 currentTile = 43
 
             } else if (frontArray.length > 1) {
-                console.log('this should start decision event') // TODO
-                // REMOVE NEXT LINE AND REPALCE WITH DECISION EVENT WHEN IMPLEMENTED
-                this.player.move.to(frontArray[0])
-                currentTile = frontArray[0];
+                // Stop here and let the caller ask the player which path to take
+                console.log(`Fork encountered at tile ${currentTile} with options [${frontArray.join(', ')}]`);
+                // Log possible paths from this tile to potential destination tiles
+                frontArray.forEach((option, index) => {
+                    let path = [option];
+                    let nextTile = option;
+                    // Look ahead a few steps to see potential paths (limited to 6 steps for brevity)
+                    for (let step = 0; step < 6; step++) {
+                        const nextFront = this.game.map.tiles[nextTile].getFront();
+                        if (nextFront.length > 0) {
+                            nextTile = nextFront[0]; // Take the first option for simplicity
+                            path.push(nextTile);
+                        } else {
+                            break;
+                        }
+                    }
+                    console.log(`Possible path ${index + 1} from tile ${currentTile} via option ${option}: [${path.join(', ')}]`);
+                });
+
+                return {
+                    success: false,
+                    pendingChoice: { options: frontArray, stepsRemaining: by - i }
+                };
 
             } else {
+                console.log(`Moving player ${this.player.id} from tile ${currentTile} to tile ${frontArray[0]}`);
                 this.player.move.to(frontArray[0])
                 currentTile = frontArray[0];
             }
         }
+        console.log(`Completed ${by} steps for player ${this.player.id}, final position: tile ${currentTile}`);
+        return { success: true };
     }
 
 public back(by: number): void {
@@ -107,9 +133,13 @@ private rollDiceNum(): number {
     return Math.floor(Math.random() * 6) + 1;
 }
 
-public diceRoll(): void {
+public diceRoll(): { roll: number; pendingChoice?: { options: number[]; stepsRemaining: number } } {
     const dice = this.rollDiceNum();
     console.log(`Player ${this.player.id} rolled a ${dice}!`);
-    this.player.move.front(dice);
+    const frontResult = this.front(dice);
+    if (!frontResult.success) {
+        return { roll: dice, pendingChoice: frontResult.pendingChoice };
+    }
+    return { roll: dice };
 }
 }

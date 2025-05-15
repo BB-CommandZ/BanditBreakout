@@ -25,7 +25,7 @@ export async function getAssetByFilename(filename: string) {
             // Check in regular collection for small files
             asset = await db.collection(COLL_NAME).findOne({ filename });
             if (asset) {
-                await setToCache(cacheKey, asset);
+                await setToCache(cacheKey, asset, 86400); // Cache for 1 day
                 await client.close();
                 return asset;
             }

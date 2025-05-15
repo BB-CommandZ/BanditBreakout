@@ -44,16 +44,22 @@ export class CharacterSelection extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image("overlayBacking", "tempAssets/charSelection/backing.png");
-    this.load.image("overlayFrame", "tempAssets/charSelection/frame.png");
-    this.load.image("overlayPage", "tempAssets/charSelection/page.png");
-    this.load.image("ovelayBackSign", "tempAssets/charSelection/backSign.png");
-    this.load.image("charSign", "tempAssets/charSelection/charSign.png");
-    this.load.svg("buckshot", "tempAssets/charSelection/buckshotFront.svg");
-    this.load.svg("serpy", "tempAssets/charSelection/serpyFront.svg");
-    this.load.svg("grit", "tempAssets/charSelection/gritFront.svg");
-    this.load.svg("scout", "tempAssets/charSelection/scoutFront.svg");
-    this.load.svg("solstice", "tempAssets/charSelection/solsticeFront.svg");
+
+    const serverUrl = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000';
+    this.load.setBaseURL(serverUrl);          
+    this.load.setPath('assets');       
+      
+    this.load.image("overlayBacking", encodeURIComponent("character_selection/backing.png"));
+    this.load.image("overlayFrame", encodeURIComponent("character_selection/frame.png"));
+    this.load.image("overlayPage", encodeURIComponent("character_selection/page.png"));
+    this.load.image("ovelayBackSign", encodeURIComponent("character_selection/backSign.png"));
+    this.load.image("charSign", encodeURIComponent("character_selection/charSign.png"));
+
+    this.load.svg("buckshot", encodeURIComponent("character_asset/buckshotFront.svg"));
+    this.load.svg("serpy", encodeURIComponent("character_asset/serpyFront.svg"));
+    this.load.svg("grit", encodeURIComponent("character_asset/gritFront.svg"));
+    this.load.svg("scout", encodeURIComponent("character_asset/scoutFront.svg"));
+    this.load.svg("solstice", encodeURIComponent("character_asset/solsticeFront.svg"));
 
     WebFontLoader.load({
       custom: {
@@ -193,7 +199,11 @@ selectInteractive.fillStyle(0x000000, 0)
 containerCharSign.add(selectInteractive);
 
 selectInteractive.on('pointerdown', () => {
-    this.scene.start("MapScene");
+    // Get the asset path for the selected character
+    const assetPath = this.getCharacterAssetPath(Characters[this.charIndex].id);
+    console.log(`Starting MapScene with character asset: ${assetPath}`);
+    // Start MapScene and pass the character asset path as data
+    this.scene.start("MapScene", { characterAsset: assetPath });
 });
 
 
@@ -371,6 +381,19 @@ selectInteractive.on('pointerdown', () => {
       this.changeCharacter(1);
     }
     
+  }
+
+  // Utility to map character IDs to asset paths
+  private getCharacterAssetPath(characterId: number): string {
+    const characterMap: { [key: number]: string } = {
+      1: 'character_asset/buckshotFront.svg',
+      2: 'character_asset/serpyFront.svg',
+      3: 'character_asset/gritFront.svg',
+      4: 'character_asset/solsticeFront.svg',
+      5: 'character_asset/scoutFront.svg'
+      // Add other character mappings here
+    };
+    return characterMap[characterId] || 'character_asset/solsticeFront.svg'; // Default to Solstice if ID not found
   }
 
 
