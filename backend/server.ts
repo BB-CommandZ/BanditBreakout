@@ -105,7 +105,6 @@ io.on('connection', (socket) => {
           const game = activeGames[gameId];
           const playerCount = game.players.length;
           socket.emit('createGame', gameId, playerCount)
-          io.to(gameId).emit('gameStarted', { gameId });
         }
       } catch (error) {
         socket.emit('error', { message: 'Failed to start game', details: error || 'Unknown error' });

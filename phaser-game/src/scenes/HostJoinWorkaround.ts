@@ -23,16 +23,12 @@ export class HostJoinWorkaround extends Phaser.Scene {
       this.updateGameState(`Player Joined: Player ID = ${data.playerId}`);
     });
 
-    this.socket.on("gameState", (gameState: any) => {
-      
-    });
-
     this.socket.on("error", (error: any) => {
       this.updateGameState(`Error: ${error.message}`);
 
       });
 
-      this.socket.on("gameStarted", (data: { gameId: string }) => {
+      this.socket.on("gameCreated", (data: { gameId: string }) => {
         this.scene.start("MapScene", { gameId: data.gameId });
       });
   }
@@ -97,14 +93,8 @@ export class HostJoinWorkaround extends Phaser.Scene {
     // Register the 'gameId' listener once
     this.socket.on('gameId', (gameId: any) => {
       this.updateGameCode(gameId);
-      this.updateGameState(`Game ID: ${gameId}`);
     });
   
-
-  this.socket.on('gameState', (gameState: any) => {
-    this.updatePlayerList(gameState.players);
-    this.updateGameState(this.formatGameState(gameState));
-  });
 }
 
 
