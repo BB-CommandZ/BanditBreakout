@@ -6,6 +6,8 @@ import { CutScene } from "./scenes/CutScene";
 import { SettingsMenu } from "./scenes/Settings";
 import { EmptyTest } from "./scenes/EmptyTest";
 import { MapScene } from "./scenes/MapScene";
+import { BattleTest } from "./scenes/BattleTest";
+import { BattleScene } from "./scenes/BattleScene";
 
 const config = {
   type: Phaser.AUTO,
@@ -25,18 +27,20 @@ const config = {
     // Host,
     // Code,
     // Room,
-    Guide,
-    CharacterSelection,
+    // Guide,
+    // CharacterSelection,
     // SettingsMenu,
     // MapScene,
+    // BattleTest,
+    BattleScene,
   ],
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   loader: {
-    crossOrigin: 'anonymous'
-  }
+    crossOrigin: "anonymous",
+  },
 };
 
 new Phaser.Game(config);

@@ -5,6 +5,8 @@ export default class Battle {
   private player: Player;
   private game: Game;
   private opponent: Player;
+  private playerAction!: string;
+  private opponentAction!: string;
   private amountBuff: { buffType: string; amount: number };
 
   constructor(player: Player, opponent: Player) {
@@ -26,7 +28,27 @@ export default class Battle {
     self.health(`+${defenseAmount}`);
   }
 
-  resolveMove(player: Player) {}
+  public processTurn(playerAction: string, opponentAction: string): string {
+    this.checkBattleEffects(this.player);
+    this.checkBattleEffects(this.opponent);
+
+    if (playerAction === "attack" && opponentAction === "defense") {
+      const attackAmount = this.getActionAmount("attack");
+      const defenseAmount = this.getActionAmount("defense");
+      const damage = Math.max(0, attackAmount - defenseAmount);
+      this.opponent.health(`-${damage}`);
+      return `Player attacked, opponent defended. Opponent lost ${damage} health.`;
+    } else if (playerAction === "attack" && opponentAction === "attack") {
+      const playerDamage = this.getActionAmount("attack");
+      const opponentDamage = this.getActionAmount("attack");
+      this.player.health(`-${opponentDamage}`);
+      this.opponent.health(`-${playerDamage}`);
+      return `Both players attacked. Player lost ${opponentDamage} health, opponent lost ${playerDamage} health.`;
+    } else if (playerAction === "defense" && opponentAction === "defense") {
+      return `Both players defended. No damage dealt.`;
+    }
+    return "Invalid actions.";
+  }
 
   private getActionAmount(action: string) {
     // get num 1-6
@@ -41,7 +63,7 @@ export default class Battle {
   public checkBattleEffects(player: Player) {
     const hasEffect = player.status.hasEffect;
     if (hasEffect) {
-      let buffs = player.status.effects;
+      const buffs = player.status.effects;
       //check effect
       //if its health effect
       // add health
