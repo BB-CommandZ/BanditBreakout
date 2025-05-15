@@ -1,17 +1,17 @@
 @font-face {
-    font-family: 'Wellfleet';
-    src: url('fonts/Wellfleet-Regular.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-  }
-  
-  @font-face {
-    font-family: 'WBB';
-    src: url('fonts/WesternBangBang-Regular.woff2') format('woff2'),
-    url('fonts/WesternBangBang-Regular.woff') format('woff'),
-    url('fonts/WesternBangBang-Regular.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-  }
+  font-family: "Wellfleet";
+  src: url("/fonts/Wellfleet-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "WBB";
+  src: url("/fonts/WesternBangBang-Regular.woff2") format("woff2"),
+    url("/fonts/WesternBangBang-Regular.woff") format("woff"),
+    url("/fonts/WesternBangBang-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
