@@ -27,6 +27,7 @@ const config = {
     HostRoom,
     JoinCode,
     HostJoinWorkaround,
+    // Guide,
     CharacterSelection,
     // SettingsMenu,
     // MapScene,
