@@ -70,16 +70,16 @@ export class BattleScene extends Phaser.Scene {
     healthBarOneContainer.add(healthBarOne);
 
     const healthTextOne = this.add.text(-80, -10, "10/10", {
-      fontFamily: "Wellfleet",
-      fontSize: 32,
+      fontFamily: "WBB",
+      fontSize: 45,
       color: "#ffffff",
       align: "center",
     });
     healthBarOneContainer.add(healthTextOne);
 
     const hpTextOne = this.add.text(220, -10, "HP", {
-      fontFamily: "Wellfleet",
-      fontSize: 32,
+      fontFamily: "WBB",
+      fontSize: 45,
       color: "#000000",
       align: "center",
     });
@@ -89,9 +89,9 @@ export class BattleScene extends Phaser.Scene {
     const bannerOne = this.add.image(0, 0, "banner 1");
     bannerOne.setDisplaySize(600, 350);
     bannerOneContainer.add(bannerOne);
-    const bannerOneText = this.add.text(-240, 50, this.playerName, {
-      fontFamily: "Wellfleet",
-      fontSize: 32,
+    const bannerOneText = this.add.text(-230, 50, this.playerName, {
+      fontFamily: "WBB",
+      fontSize: 45,
       color: "#462406",
       align: "center",
     });
@@ -109,16 +109,16 @@ export class BattleScene extends Phaser.Scene {
     healthBarTwoContainer.add(healthBarTwo);
 
     const healthTextTwo = this.add.text(-80, -10, "10/10", {
-      fontFamily: "Wellfleet",
-      fontSize: 32,
+      fontFamily: "WBB",
+      fontSize: 45,
       color: "#ffffff",
       align: "center",
     });
     healthBarTwoContainer.add(healthTextTwo);
 
     const hpTextTwo = this.add.text(220, -10, "HP", {
-      fontFamily: "Wellfleet",
-      fontSize: 32,
+      fontFamily: "WBB",
+      fontSize: 45,
       color: "#000000",
       align: "center",
     });
@@ -129,8 +129,8 @@ export class BattleScene extends Phaser.Scene {
     bannerTwo.setDisplaySize(600, 350);
     bannerTwoContainer.add(bannerTwo);
     const bannerTextTwo = this.add.text(-200, 50, this.enemyName, {
-      fontFamily: "Wellfleet",
-      fontSize: 32,
+      fontFamily: "WBB",
+      fontSize: 45,
       color: "#462406",
       align: "center",
     });
@@ -159,8 +159,8 @@ export class BattleScene extends Phaser.Scene {
     const attackButton = this.add.image(0, 0, "attack-button");
     attackButton.setDisplaySize(500, 500);
     const attackText = this.add.text(-70, -10, "Attack", {
-      fontFamily: "Wellfleet",
-      fontSize: 32,
+      fontFamily: "WBB",
+      fontSize: 45,
       color: "#ffffff",
       align: "center",
     });
@@ -169,9 +169,9 @@ export class BattleScene extends Phaser.Scene {
     const defendButtonContainer = this.add.container(700, 900);
     const defendButton = this.add.image(0, 0, "defend-button");
     defendButton.setDisplaySize(500, 500);
-    const defendText = this.add.text(-75, -10, "Defend", {
-      fontFamily: "Wellfleet",
-      fontSize: 32,
+    const defendText = this.add.text(-70, -10, "Defend", {
+      fontFamily: "WBB",
+      fontSize: 45,
       color: "#ffffff",
       align: "center",
     });
