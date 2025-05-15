@@ -248,7 +248,7 @@ export class JoinCode extends Phaser.Scene {
   }
 
   preload() {
-    this.socket = io("http://localhost:3000");
+    // this.socket = io("http://localhost:3000");
     this.load.image("background", "assets/backDesert.png");
     this.load.image("post", "assets/post.png");
     this.load.image("host", "assets/host.png");
@@ -344,14 +344,24 @@ export class JoinCode extends Phaser.Scene {
     );
 
     startContainer.on("pointerdown", () => {
-      const gameId = prompt("Enter Game ID to Join:");
-      if (gameId && gameId.trim().length > 0) {
-        console.log(`Emitting joinLobby with gameId: ${gameId.trim()}`);
-        this.socket.emit("joinLobby", gameId.trim());
-        this.scene.start("HostRoom", { gameId: gameId.trim() });
-      } else {
-        console.log("Invalid Game ID");
-      }
+      // const gameId = prompt("Enter Game ID to Join:");
+      // if (gameId && gameId.trim().length > 0) {
+      //   console.log(`Emitting joinLobby with gameId: ${gameId.trim()}`);
+      //   this.socket.emit("joinLobby", gameId.trim());
+    
+        
+      //   this.socket.once("joinedLobby", (data: { gameId: string, playerId: number }) => {
+      //     this.scene.start("HostRoom", { gameId: data.gameId, playerId: data.playerId });
+      //   });
+    
+        
+      //   this.socket.once("error", (err) => {
+      //     alert(err.message || "Failed to join game.");
+      //   });
+      // } else {
+      //   console.log("Invalid Game ID");
+      // }
+      this.scene.start("HostJoinWorkaround")
     });
 
 
@@ -405,7 +415,7 @@ export class HostRoom extends Phaser.Scene {
   }
 
   preload() {
-    this.socket = io("http://localhost:3000");
+    // this.socket = io("http://localhost:3000");
     
     this.load.image("background", "assets/backDesert.png");
     this.load.image("post", "assets/post.png");
@@ -424,24 +434,26 @@ export class HostRoom extends Phaser.Scene {
     });
   }
 
-  create(data: { gameId?: string;}) {
-    if (data.gameId) {
-      console.log(`Received gameId in HostRoom: ${data.gameId}`);
-      this.updateGameCode(data.gameId);
-    } else {
-      console.log("No gameId provided, emitting hostLobby");
-      this.socket.emit("hostLobby");
-    }
+  create(
+    // data: { gameId?: string;}
+  ) {
+    // if (data.gameId) {
+    //   console.log(`Received gameId in HostRoom: ${data.gameId}`);
+    //   this.updateGameCode(data.gameId);
+    // } else {
+    //   console.log("No gameId provided, emitting hostLobby");
+    //   this.socket.emit("hostLobby");
+    // }
   
-    this.socket.on("gameId", (gameId) => {
-      console.log(`Received gameId from server: ${gameId}`);
-      this.updateGameCode(gameId);
-    });
+    // this.socket.on("gameId", (gameId) => {
+    //   console.log(`Received gameId from server: ${gameId}`);
+    //   this.updateGameCode(gameId);
+    // });
   
-    this.socket.on("joinedLobby", (data: { gameId: string; playerId: number }) => {
-      console.log(`Player joined lobby: ${JSON.stringify(data)}`);
-      this.increasePlayerCount();
-    });
+    // this.socket.on("joinedLobby", (data: { gameId: string; playerId: number }) => {
+    //   console.log(`Player joined lobby: ${JSON.stringify(data)}`);
+    //   this.increasePlayerCount();
+    // });
     
     const screen = this.add.container(0, 0);
 
@@ -485,9 +497,9 @@ export class HostRoom extends Phaser.Scene {
       color: "#492807",
     });
     this.codeText.setRotation(-0.03);
-    this.socket.on('gameId', (gameId) => {
-      this.updateGameCode(gameId);
-    });
+    // this.socket.on('gameId', (gameId) => {
+    //   this.updateGameCode(gameId);
+    // });
   
     codeContainer.add(code);
     codeContainer.add(this.codeText);
@@ -511,7 +523,7 @@ export class HostRoom extends Phaser.Scene {
     joinInteractive.fillRect(260, 850, 460, 200);
     joinInteractive.setInteractive(new Phaser.Geom.Rectangle(260, 850, 460, 200), Phaser.Geom.Rectangle.Contains);
     joinInteractive.on("pointerdown", () => {
-      this.scene.start("CharacterSelection");
+      this.scene.start("HostJoinWorkaround");
     });
 
     const lobbyContainer = this.add.container(0, 0);

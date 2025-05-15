@@ -6,6 +6,7 @@ import { CutScene } from "./scenes/CutScene";
 import { SettingsMenu } from "./scenes/Settings";
 import { EmptyTest } from "./scenes/EmptyTest";
 import { MapScene } from "./scenes/MapScene";
+import { HostJoinWorkaround } from "./scenes/HostJoinWorkaround";
 
 const config = {
   type: Phaser.AUTO,
@@ -25,6 +26,7 @@ const config = {
     ConnectionMenu,
     HostRoom,
     JoinCode,
+    HostJoinWorkaround,
     CharacterSelection,
     // SettingsMenu,
     // MapScene,
