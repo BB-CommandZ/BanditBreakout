@@ -1,5 +1,5 @@
-import { io, Socket } from 'socket.io-client';
-
+import io, { Socket } from 'socket.io-client';
+import { socket } from '../middleware/socket';
 export class MapScene extends Phaser.Scene {
   
     constructor() {
@@ -17,7 +17,7 @@ export class MapScene extends Phaser.Scene {
 
     private player: Phaser.GameObjects.Image;
     private tileLocations: Map<number, { cx: number, cy: number, r: number }> = new Map();
-    private socket: any; // Socket.io client
+    private socket = socket; // Socket.io client
     //TODO
     //private gameId: string = 'game_' + Math.floor(Math.random() * 10000).toString().padStart(4, '0'); // Generate a random game ID
     private gameId: string = 'game_multiple_user'; 

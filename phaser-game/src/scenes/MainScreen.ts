@@ -2,7 +2,6 @@ import { ok } from "assert";
 import Phaser from "phaser";
 import WebFontLoader from "webfontloader";
 import settingsListener from "../middleware/settingsListener";
-import { io, Socket } from "socket.io-client";
 
 
 
@@ -144,7 +143,7 @@ export class ConnectionMenu extends Phaser.Scene {
     screen.add(background);
 
     const postContainer = this.add.container(850, 620);
-    const post = this.add.image(0, 0, "post");
+    const post = this.add.image(0, 0, "post-host");
     postContainer.add(post);
 
     const backContainer = this.add.container(350, -220);
@@ -232,7 +231,6 @@ export class JoinCode extends Phaser.Scene {
   private host!: Phaser.GameObjects.Image;
   private code!: Phaser.GameObjects.Image;
   private backSign!: Phaser.GameObjects.Image;
-  private socket!: Socket;
   private codeText!: Phaser.GameObjects.Text;
   private typedCode: string = "";
 
@@ -399,7 +397,6 @@ export class HostRoom extends Phaser.Scene {
   private lobby!: Phaser.GameObjects.Image;
   private playericon!: Phaser.GameObjects.Image;
 
-  private socket!: Socket;
   private gameCode!: Phaser.GameObjects.Text;
   private codeText!: Phaser.GameObjects.Text;
   private playerIconContainer!: Phaser.GameObjects.Container;
