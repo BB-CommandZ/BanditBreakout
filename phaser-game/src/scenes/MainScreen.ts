@@ -1,7 +1,16 @@
 import { ok } from "assert";
 import Phaser from "phaser";
 import WebFontLoader from "webfontloader";
+import settingsListener from "../middleware/settingsListener";
+import { io, Socket } from "socket.io-client";
 
+
+
+
+
+
+
+// MAIN MENU
 export class MainScreen extends Phaser.Scene {
   private background!: Phaser.GameObjects.Image;
   private pole!: Phaser.GameObjects.Image;
@@ -89,12 +98,20 @@ export class MainScreen extends Phaser.Scene {
       Phaser.Geom.Rectangle.Contains
     );
     startContainer.on("pointerdown", () => {
-      this.scene.start("Host");
+      this.scene.start("ConnectionMenu");
     });
   }
 }
 
-export class Host extends Phaser.Scene {
+
+
+
+
+
+
+// HOST OR JOIN
+
+export class ConnectionMenu extends Phaser.Scene {
   private background!: Phaser.GameObjects.Image;
   private post!: Phaser.GameObjects.Image;
   private host!: Phaser.GameObjects.Image;
@@ -102,7 +119,7 @@ export class Host extends Phaser.Scene {
   private backSign!: Phaser.GameObjects.Image;
 
   constructor() {
-    super("Host");
+    super("ConnectionMenu");
   }
 
   preload() {
@@ -166,6 +183,7 @@ export class Host extends Phaser.Scene {
     codeContainer.add(codeText);
     postContainer.add(codeContainer);
 
+
     backContainer.setInteractive(
       new Phaser.Geom.Rectangle(
         backSignText.x - 200,
@@ -186,7 +204,7 @@ export class Host extends Phaser.Scene {
     );
 
     hostContainer.on("pointerdown", () => {
-      this.scene.start("Room");
+      this.scene.start("HostRoom");
     });
 
     codeContainer.setInteractive(
@@ -195,23 +213,36 @@ export class Host extends Phaser.Scene {
     );
 
     codeContainer.on("pointerdown", () => {
-      this.scene.start("Code");
+      this.scene.start("JoinCode");
     });
   }
 }
 
-export class Code extends Phaser.Scene {
+
+
+
+
+
+
+//JOIN
+
+export class JoinCode extends Phaser.Scene {
   private background!: Phaser.GameObjects.Image;
   private post!: Phaser.GameObjects.Image;
   private host!: Phaser.GameObjects.Image;
   private code!: Phaser.GameObjects.Image;
   private backSign!: Phaser.GameObjects.Image;
+  private socket!: Socket;
+  private codeText!: Phaser.GameObjects.Text;
+  private typedCode: string = "";
 
   constructor() {
-    super("Code");
+    super("JoinCode");
   }
 
   preload() {
+
+    // this.socket = io("http://localhost:3000");
     this.load.image("background-code", "assets/background.png");
     this.load.image("post-code", "assets/post.png");
     this.load.image("host", "assets/host.png");
@@ -298,7 +329,7 @@ export class Code extends Phaser.Scene {
     );
 
     backContainer.on("pointerdown", () => {
-      this.scene.start("Host");
+      this.scene.start("ConnectionMenu");
     });
 
     startContainer.setInteractive(
@@ -307,12 +338,59 @@ export class Code extends Phaser.Scene {
     );
 
     startContainer.on("pointerdown", () => {
-      this.scene.start("Room");
+      // const gameId = prompt("Enter Game ID to Join:");
+      // if (gameId && gameId.trim().length > 0) {
+      //   console.log(`Emitting joinLobby with gameId: ${gameId.trim()}`);
+      //   this.socket.emit("joinLobby", gameId.trim());
+    
+        
+      //   this.socket.once("joinedLobby", (data: { gameId: string, playerId: number }) => {
+      //     this.scene.start("HostRoom", { gameId: data.gameId, playerId: data.playerId });
+      //   });
+    
+        
+      //   this.socket.once("error", (err) => {
+      //     alert(err.message || "Failed to join game.");
+      //   });
+      // } else {
+      //   console.log("Invalid Game ID");
+      // }
+      this.scene.start("HostJoinWorkaround")
     });
+
+
+  //   this.input.keyboard!.on("keydown", (event: KeyboardEvent) => {
+  //     this.handleTyping(event);
+  //   });
+  // }
+
+  // private handleTyping(event: KeyboardEvent) {
+  //   const key = event.key;
+
+    
+  //   if (/^[a-zA-Z0-9]$/.test(key) && this.typedCode.length < 6) {
+  //     this.typedCode += key.toLowerCase();
+  //   }
+
+  //   if (key === "Backspace" && this.typedCode.length > 0) {
+  //     this.typedCode = this.typedCode.slice(0, -1);
+  //   }
+
+  //   this.codeText.setText(this.typedCode || "_ _ _ _ _ _");
   }
 }
 
-export class Room extends Phaser.Scene {
+
+
+
+
+
+
+
+
+
+// HOST
+export class HostRoom extends Phaser.Scene {
   private background!: Phaser.GameObjects.Image;
   private post!: Phaser.GameObjects.Image;
   private host!: Phaser.GameObjects.Image;
@@ -321,11 +399,18 @@ export class Room extends Phaser.Scene {
   private lobby!: Phaser.GameObjects.Image;
   private playericon!: Phaser.GameObjects.Image;
 
+  private socket!: Socket;
+  private gameCode!: Phaser.GameObjects.Text;
+  private codeText!: Phaser.GameObjects.Text;
+  private playerIconContainer!: Phaser.GameObjects.Container;
+
   constructor() {
-    super("Room");
+    super("HostRoom");
   }
 
   preload() {
+    // this.socket = io("http://localhost:3000");
+
     this.load.image("background-room", "assets/background.png");
     this.load.image("post-room", "assets/post.png");
     this.load.image("host", "assets/host.png");
@@ -343,7 +428,27 @@ export class Room extends Phaser.Scene {
     });
   }
 
-  create() {
+  create(
+    // data: { gameId?: string;}
+  ) {
+    // if (data.gameId) {
+    //   console.log(`Received gameId in HostRoom: ${data.gameId}`);
+    //   this.updateGameCode(data.gameId);
+    // } else {
+    //   console.log("No gameId provided, emitting hostLobby");
+    //   this.socket.emit("hostLobby");
+    // }
+  
+    // this.socket.on("gameId", (gameId) => {
+    //   console.log(`Received gameId from server: ${gameId}`);
+    //   this.updateGameCode(gameId);
+    // });
+  
+    // this.socket.on("joinedLobby", (data: { gameId: string; playerId: number }) => {
+    //   console.log(`Player joined lobby: ${JSON.stringify(data)}`);
+    //   this.increasePlayerCount();
+    // });
+    
     const screen = this.add.container(0, 0);
 
     const background = this.add.image(960, 540, "background-room");
@@ -380,14 +485,18 @@ export class Room extends Phaser.Scene {
     const code = this.add.image(0, 0, "code");
     code.setDisplaySize(890, 290);
     code.setFlipX(true);
-    const codeText = this.add.text(-360, -50, "_ _ _ _ _ _", {
+    this.codeText = this.add.text(-210, -90, "", {
       fontFamily: "WBB",
-      fontSize: 150,
+      fontSize: 210,
       color: "#492807",
     });
-    codeText.setRotation(-0.03);
+    this.codeText.setRotation(-0.03);
+    // this.socket.on('gameId', (gameId) => {
+    //   this.updateGameCode(gameId);
+    // });
+  
     codeContainer.add(code);
-    codeContainer.add(codeText);
+    codeContainer.add(this.codeText);
     postContainer.add(codeContainer);
 
     const startContainer = this.add.container(100, 80);
@@ -403,6 +512,13 @@ export class Room extends Phaser.Scene {
     startContainer.add(start);
     startContainer.add(startText);
     postContainer.add(startContainer);
+    let joinInteractive = this.add.graphics();
+    joinInteractive.fillStyle(0x000000, 0);
+    joinInteractive.fillRect(260, 850, 460, 200);
+    joinInteractive.setInteractive(new Phaser.Geom.Rectangle(260, 850, 460, 200), Phaser.Geom.Rectangle.Contains);
+    joinInteractive.on("pointerdown", () => {
+      this.scene.start("HostJoinWorkaround");
+    });
 
     const lobbyContainer = this.add.container(0, 0);
     const lobby = this.add.image(1400, 650, "lobby");
@@ -415,65 +531,9 @@ export class Room extends Phaser.Scene {
     lobbyContainer.add(lobby);
     lobbyContainer.add(lobbyText);
 
-    const playericonContainer = this.add.container(0, 0);
-
-    const playericonContainter1 = this.add.container(0, 0);
-    const playericon1 = this.add.image(1270, 550, "playericon");
-    const playericon1Text = this.add.text(1245, 600, "P1", {
-      fontFamily: "WBB",
-      fontSize: 60,
-      color: "#492807",
-    });
-    playericonContainter1.add(playericon1);
-    playericonContainter1.add(playericon1Text);
-
-    const playericonContainter2 = this.add.container(0, 0);
-    const playericon2 = this.add.image(1270, 710, "playericon");
-    const playericon2Text = this.add.text(1245, 760, "P2", {
-      fontFamily: "WBB",
-      fontSize: 60,
-      color: "#492807",
-    });
-    playericonContainter2.add(playericon2);
-    playericonContainter2.add(playericon2Text);
-
-    const playericonContainter3 = this.add.container(0, 0);
-    const playericon3 = this.add.image(1270, 870, "playericon");
-    const playericon3Text = this.add.text(1245, 920, "P3", {
-      fontFamily: "WBB",
-      fontSize: 60,
-      color: "#492807",
-    });
-    playericonContainter3.add(playericon3);
-    playericonContainter3.add(playericon3Text);
-
-    const playericonContainter4 = this.add.container(0, 0);
-    const playericon4 = this.add.image(1500, 550, "playericon");
-    const playericon4Text = this.add.text(1475, 600, "P4", {
-      fontFamily: "WBB",
-      fontSize: 60,
-      color: "#492807",
-    });
-    playericonContainter4.add(playericon4);
-    playericonContainter4.add(playericon4Text);
-
-    const playericonContainter5 = this.add.container(0, 0);
-    const playericon5 = this.add.image(1500, 710, "playericon");
-    const playericon5Text = this.add.text(1475, 760, "P5", {
-      fontFamily: "WBB",
-      fontSize: 60,
-      color: "#492807",
-    });
-    playericonContainter5.add(playericon5);
-    playericonContainter5.add(playericon5Text);
-
-    playericonContainer.add([
-      playericonContainter1,
-      playericonContainter2,
-      playericonContainter3,
-      playericonContainter4,
-      playericonContainter5,
-    ]);
+    this.playerIconContainer = this.add.container(0, 0);
+    this.add.existing(this.playerIconContainer);
+    this.increasePlayerCount()
 
     backContainer.setInteractive(
       new Phaser.Geom.Rectangle(
@@ -486,8 +546,42 @@ export class Room extends Phaser.Scene {
     );
 
     backContainer.on("pointerdown", () => {
-      this.scene.start("Host");
+      this.scene.start("ConnectionMenu");
     });
+
+  }
+  
+  private playerCount = 1;
+  private playerIconsX = 1270
+  private playerIconsY = 550
+  private playerIconsSecondY = 550
+  private increasePlayerCount() {
+    if (this.playerCount <= 3) {
+      this.addPlayerIcon(this.playerIconsX, this.playerIconsY, `P${this.playerCount}`)
+      this.playerIconsY += 160
+    } else {
+      this.addPlayerIcon(this.playerIconsX, this.playerIconsSecondY, `P${this.playerCount}`)
+      this.playerIconsSecondY +=160
+    }
+    this.playerCount++
+  }
+
+  private addPlayerIcon(x: number, y: number, playerId: string) {
+    
+    const playerIcon = this.add.image(x, y, "playericon");
+    const playerText = this.add.text(x - 25, y + 50, playerId, {
+      fontFamily: "WBB",
+      fontSize: 60,
+      color: "#492807",
+    });
+  
+    this.playerIconContainer.add(playerIcon);
+    this.playerIconContainer.add(playerText);
+
+  }
+
+  private updateGameCode(gameId: string) {
+    this.codeText.setText(`${gameId.toUpperCase()}`);
   }
 }
 
