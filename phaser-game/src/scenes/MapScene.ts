@@ -157,9 +157,12 @@ export class MapScene extends Phaser.Scene {
       // Parse the CSV data after it's loaded
       this.parseTileLocations();
 
-      console.log(`${this.playerId}, ${this.currentPlayerTurn}`);
+      console.log(`Player ID: ${this.playerId}, Current Player Turn: ${this.currentPlayerTurn}`);
       if (this.playerId === this.currentPlayerTurn) {
+        console.log("Condition met in create: this.playerId === this.currentPlayerTurn");
         this.showRollDiceButton();
+      } else {
+        console.log("Condition not met in create: this.playerId !== this.currentPlayerTurn");
       }
     }
 
@@ -428,8 +431,10 @@ export class MapScene extends Phaser.Scene {
 
           // Check if it's the local player's turn to show or hide the dice roll button
           if (this.currentPlayerTurn === this.playerId) {
-            console.log("It's your turn! Roll the dice!");
+            console.log("Condition met in gameState listener: this.currentPlayerTurn === this.playerId. It's your turn! Roll the dice!");
             this.showRollDiceButton();
+          } else {
+            console.log("Condition not met in gameState listener: this.currentPlayerTurn !== this.playerId");
           }
         });
         
@@ -464,9 +469,11 @@ export class MapScene extends Phaser.Scene {
           this.updateNextPlayerEffect();
           // If it's this player's turn, prompt for actions
           if (this.currentPlayerTurn === this.playerId) {
-            console.log("It's your turn! Roll the dice!");
+            console.log("Condition met in gameStarted listener: this.currentPlayerTurn === this.playerId. It's your turn! Roll the dice!");
             // Show UI button or prompt to roll dice
             this.showRollDiceButton();
+          } else {
+            console.log("Condition not met in gameStarted listener: this.currentPlayerTurn !== this.playerId");
           }
           
         });
@@ -478,9 +485,11 @@ export class MapScene extends Phaser.Scene {
           // Update UI to highlight current player
           this.updateNextPlayerEffect();
           if (this.currentPlayerTurn === this.playerId) {
-            console.log("It's your turn! Roll the dice!");
+            console.log("Condition met in turnAdvanced listener: this.currentPlayerTurn === this.playerId. It's your turn! Roll the dice!");
             // Show UI button or prompt to roll dice
             this.showRollDiceButton();
+          } else {
+            console.log("Condition not met in turnAdvanced listener: this.currentPlayerTurn !== this.playerId");
           }
         });
         
@@ -533,6 +542,7 @@ export class MapScene extends Phaser.Scene {
     
     // Show roll dice button
     private showRollDiceButton() {
+      console.log("showRollDiceButton called");
       // Get the scene dimensions
       const { width, height } = this.scale;
       
@@ -546,9 +556,12 @@ export class MapScene extends Phaser.Scene {
       .setOrigin(0, 1) // Set origin to top-left for precise positioning
       .setInteractive()
       .on('pointerdown', () => {
+        console.log("Roll Dice button clicked");
         this.requestDiceRoll();
         button.destroy();
       });
+      console.log(`Roll Dice button created at (${button.x}, ${button.y}) with origin (${button.originX}, ${button.originY})`);
+      console.log(`Button properties: visible=${button.visible}, active=${button.active}, depth=${button.depth}`);
     }
     
     // Update visual effect for the next player to move
@@ -707,4 +720,3 @@ export class MapScene extends Phaser.Scene {
       }
     }
   }
-  

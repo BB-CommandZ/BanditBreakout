@@ -3,6 +3,7 @@ import Tile from './Tile';
 import Game from './Game';
 import Move from './Movement';
 import Inventory from './Inventory';
+import { IEffect } from './Status'; // Import IEffect
 
 /**
  * Represents a player on the map
@@ -19,6 +20,7 @@ export default class Player {
   id: number;
   character_id: number;
   isAlive: boolean;
+  maxHealth: number; // Added maxHealth property
   status: Status;
   inventory: Inventory;
   move: Move;
@@ -36,12 +38,14 @@ export default class Player {
    * @param status - The player's status object with gold, health and effects
    * @param inventory - Initial items in inventory (defaults to empty array)
    */
-    constructor(game: Game, id: number) {
+    constructor(game: Game, id: number, initialHealth: number = 10) { // Added initialHealth parameter
         this.game = game;
         this.id = id;
         this.character_id = 0;
         this.isAlive = true;
-        this.status = new Status(this.id);
+        this.maxHealth = initialHealth; // Initialize maxHealth
+        this.status = new Status(this.id); // Assuming Status constructor can handle initial gold if needed
+        this.status.health = initialHealth; // Set initial health
         this.inventory = new Inventory(this);
         this.move = new Move(this)
       } 
@@ -51,7 +55,18 @@ export default class Player {
     // PICK CHARACTER
 
     public pickCharacter(character_id: number) {
-    this.character_id = character_id;
+        this.character_id = character_id;
+    }
+
+    // Method to get character name (placeholder - needs actual character data)
+    public getCharacterName(): string {
+        // TODO: Implement logic to get character name based on character_id
+        return `Character_${this.character_id}`; // Placeholder implementation
+    }
+
+    // Method to get player or character name
+    public nameOrCharacter(): string {
+        return this.getCharacterName();
     }
 
     // KILL PLAYER
@@ -82,12 +97,17 @@ export default class Player {
    */
   public health(action: string): number {
     const result = this._manageResource(action, 'health');
-    
+
     if (this.status.health <= 0) {
       this.killPlayer();
     }
-    
+
     return result;
+  }
+
+  // Method to set health directly (wraps the health method)
+  public setHealth(hp: number): void {
+      this.health(`=${hp}`);
   }
   
   private _manageResource(action: string, resourceType: 'gold' | 'health'): number {
@@ -119,22 +139,60 @@ export default class Player {
 
     // EFFECTS
     
-    public getEffect() {
-    return this.status.effects;
+    public getEffect(): IEffect[] { // Updated return type
+        return this.status.effects;
     }
     
-    public effectSet(effects: string[]) {
-    this.status.effects = effects;
+    public effectSet(effects: IEffect[]) { // Updated parameter type
+        this.status.effects = effects;
     }
 
-    public effectAdd(effect: string) {
-    this.status.effects.push(effect);
+    public effectAdd(effect: IEffect) { // Updated parameter type
+        this.status.effects.push(effect);
     }
 
-    public effectRemove(effect: string) {
-    const index = this.status.effects.indexOf(effect);
-    if (index > -1) {
-        this.status.effects.splice(index, 1);
+    public effectRemove(effectName: string) { // Updated parameter type to string for easier removal by name
+        this.status.effects = this.status.effects.filter(e => e.name !== effectName);
     }
+
+    // Method to handle battle loss consequences
+    public async handleBattleLoss(gameInstance: Game, options: { moveBackTiles?: number, goldLoss?: number, itemLossCount?: number }): Promise<void> {
+        console.log(`${this.getCharacterName()} is handling battle loss.`);
+
+        // Gold Loss
+        if (options.goldLoss !== undefined && options.goldLoss > 0) {
+            const goldLost = Math.min(this.getGold(), options.goldLoss);
+            this.gold(`-${goldLost}`); // Use the existing gold method
+            console.log(`${this.getCharacterName()} lost ${goldLost} gold.`);
+        }
+
+        // Item Loss (simplified - removes random items)
+        if (options.itemLossCount !== undefined && options.itemLossCount > 0) {
+            for (let i = 0; i < options.itemLossCount; i++) {
+                const lostItem = this.inventory.removeRandomItem(); // Assuming removeRandomItem exists
+                if (lostItem) {
+                    console.log(`${this.getCharacterName()} lost item: ${lostItem.name}.`);
+                    // TODO: Logic to give item to winner if applicable (PvP)
+                } else {
+                    console.log(`${this.getCharacterName()} has no items to lose.`);
+                    break; // Stop trying to remove items if none are left
+                }
+            }
+        }
+
+        // Move Back
+        if (options.moveBackTiles !== undefined && options.moveBackTiles > 0) {
+             // Assuming Move class in backend has a back method
+            await this.move.back(options.moveBackTiles);
+            console.log(`${this.getCharacterName()} moved back ${options.moveBackTiles} tiles.`);
+        }
+
+        // Reset HP after loss (as per game design doc for PvP)
+        // Note: Game design doc says reset HP after PvP loss, not PvE loss.
+        // The game engine code resets HP after PvP loss. I'll add it here but might need adjustment based on context.
+        this.setHealth(this.maxHealth);
+        console.log(`${this.getCharacterName()}'s HP is restored to ${this.maxHealth}.`);
+
+        // TODO: Emit event to client about battle loss consequences
     }
 }

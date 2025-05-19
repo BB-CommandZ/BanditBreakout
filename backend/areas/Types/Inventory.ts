@@ -28,31 +28,52 @@ export default class Inventory {
   * - 10: WindStaffItem
   */
     public obtain(itemId: number) {
-        const item = this.makeItem(itemId);
-        this.addItem(item);
-        console.log(`Player ${this.player.id} obtained item: ${item.name}`);
+        const item = ItemFactory.createItem(itemId, this.player); // Directly call factory
+        if (item) { // Check if item creation was successful
+            this.addItem(item);
+            console.log(`Player ${this.player.id} obtained item: ${item.name}`);
+        } else {
+            console.warn(`Failed to obtain item with ID ${itemId} for player ${this.player.id}. Item not found or created.`);
+        }
     }
 
-    private makeItem(itemId: number): IBaseItem {
-        return ItemFactory.createItem(itemId, this.player);
-    }
+    // Removed the makeItem method as it's no longer needed
 
-    private addItem(item: IBaseItem): void {
+    public addItem(item: IBaseItem): void { // Changed visibility to public
         this.items.push(item);
+    }
+
+    public canAddItem(): boolean {
+        // Assuming a maximum inventory capacity of 3 based on Event.ts
+        const MAX_ITEMS = 3; 
+        return this.items.length < MAX_ITEMS;
     }
 
     public removeItem(item: IBaseItem): void {
         const index = this.items.findIndex(itemIndex => itemIndex === item);
         if (index !== -1) {
-            this.items.splice(index, 1);
+        this.items.splice(index, 1);
         }
+    }
+
+    public removeRandomItem(): IBaseItem | undefined { // Added removeRandomItem method
+        if (this.items.length === 0) {
+            return undefined; // No items to remove
+        }
+        const randomIndex = Math.floor(Math.random() * this.items.length);
+        const removedItem = this.items.splice(randomIndex, 1)[0];
+        return removedItem;
     }
 
     public obtainRandom() {
         let randomId = Math.floor(Math.random() * 11);
-        const item = this.makeItem(randomId);
-        this.addItem(item);
-        console.log(`Player ${this.player.id} obtained item: ${item.name}`);
+        const item = ItemFactory.createItem(randomId, this.player); // Directly call factory
+        if (item) { // Check if item creation was successful
+            this.addItem(item);
+            console.log(`Player ${this.player.id} obtained random item: ${item.name}`);
+        } else {
+            console.warn(`Failed to obtain random item with ID ${randomId} for player ${this.player.id}. Item not found or created.`);
+        }
     }
 
     /**

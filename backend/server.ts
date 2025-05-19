@@ -62,7 +62,7 @@ io.on('connection', (socket) => {
     try {
       let gameId = uuidv4().replace(/-/g, '').substring(0, 6).toLowerCase();
       if (!activeGames[gameId]) {
-        activeGames[gameId] = new Game(gameId);
+        activeGames[gameId] = new Game(gameId, io); // Pass io instance
         const game = activeGames[gameId];
         game.addPlayer();
         console.log(`Player 1 added!`);
@@ -75,8 +75,8 @@ io.on('connection', (socket) => {
       } else {
         console.log(`Game with ID ${gameId} already exists.`);
       }
-    } catch (error) {
-      socket.emit('error', { message: 'Failed to create game', details: error || 'Unknown error' });
+    } catch (error: any) { // Explicitly type error as any for now
+      socket.emit('error', { message: 'Failed to create game', details: error.message || 'Unknown error' }); // Access error.message
       console.error('Error creating game:', error);
     }
   });
@@ -102,7 +102,7 @@ io.on('connection', (socket) => {
     gameId = gameId.toLowerCase();
     try {
       if (activeGames[gameId]) {
-        const game = activeGames[gameId];
+        const game = activeGames[gameId]; // Game should already have io instance
         const playerId = game.players.length + 1;
         game.addPlayer();
         console.log(`Player ${playerId} added!`);
@@ -133,9 +133,9 @@ io.on('connection', (socket) => {
             // socket.emit('createGame', gameId, playerCount)
 
             console.log(`Attempting to create game with ID: ${gameId}, Player Count: ${playerCount}`);
-      
-            activeGames[gameId].startGame();
-        
+
+            activeGames[gameId].startGame(); // Game should already have io instance
+
             socket.join(gameId);
             socket.emit('gameCreated', { gameId });
             // Send the freshly-built game state to everyone already in the room (just the host for now)
@@ -182,19 +182,19 @@ io.on('connection', (socket) => {
       
       // Create a new game if it doesn't exist in activeGames
       if (!activeGames[gameId]) {
-        activeGames[gameId] = new Game(gameId);
+        activeGames[gameId] = new Game(gameId, io); // Pass io instance
         console.log(`Created new game with ID: ${gameId} as it did not exist.`);
       }
-      
-      activeGames[gameId].startGame();
-        
+
+      activeGames[gameId].startGame(); // Game should now have io instance
+
       socket.join(gameId);
       socket.emit('gameCreated', { gameId });
       // Send the freshly-built game state to everyone already in the room (just the host for now)
       io.to(gameId).emit('gameState', serializeGame(activeGames[gameId]));
       console.log(`Game created: ${gameId}`);
-    } catch (error) {
-      socket.emit('error', { message: 'Failed to create game', details: error.message || 'Unknown error' });
+    } catch (error: any) { // Explicitly type error as any
+      socket.emit('error', { message: 'Failed to create game', details: error.message || 'Unknown error' }); // Access error.message
       console.error('Error creating game:', error);
     }
   });
@@ -228,7 +228,7 @@ io.on('connection', (socket) => {
       let player = activeGames[gameId].players.find(p => p.id === playerId);
       if (!player) {
         // Add the player to the game if not found
-        player = new Player(activeGames[gameId], playerId);
+        player = new Player(activeGames[gameId], playerId); // Game instance is passed here, which now has io
         activeGames[gameId].map.setPlayerPos(0, playerId);
         
         activeGames[gameId].players.push(player);
@@ -251,140 +251,103 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Handle player movement to a specific position
+  // Handle player movement to a specific position (used for things like item effects)
   socket.on('movePlayerTo', async (gameId: string, playerId: number, position: number) => {
-    if (!activeGames[gameId]) {
+    console.log(`Received movePlayerTo request for game ${gameId}, player ${playerId} to position ${position}`);
+    const game = activeGames[gameId];
+    if (!game) {
       socket.emit('error', { message: 'Game does not exist' });
       return;
     }
     try {
-      const player = activeGames[gameId].players.find(p => p.id === playerId);
+      const player = game.players.find(p => p.id === playerId);
       if (player) {
-        player.move.to(position);
-        // Database operation removed: await updatePlayerPosition(playerId, position);
-        io.to(gameId).emit('playerMoved', { playerId, position });
+        // When moving to a specific position (e.g., via item), there are no remaining steps in a sequence
+        await player.move.to(position, 0); 
+        // player.move.to now handles emitting playerMoved and tileEventTriggered
         console.log(`Player ${playerId} moved to position ${position} in game ${gameId}`);
-        // Check for tile event
-        const tile = activeGames[gameId].map.tiles[position];
-        if (tile.event.type !== 0) { // Assuming 0 is 'NothingEvent'
-          tile.event.onStep(playerId, activeGames[gameId]);
-          io.to(gameId).emit('tileEventTriggered', { playerId, eventType: tile.event.type });
-        }
+      } else {
+        socket.emit('error', { message: 'Player not found' });
+        console.log(`Player not found: ${playerId} in game ${gameId}`);
       }
-    } catch (error) {
-      socket.emit('error', { message: 'Failed to move player' });
+    } catch (error: any) {
+      socket.emit('error', { message: 'Failed to move player', details: error.message || 'Unknown error' });
       console.error('Error moving player:', error);
     }
   });
 
-  // Handle player movement forward by steps
+  // Handle player movement forward by steps (might be used for item effects)
   socket.on('movePlayerFront', async (gameId: string, playerId: number, steps: number) => {
-    if (!activeGames[gameId]) {
+    console.log(`Received movePlayerFront request for game ${gameId}, player ${playerId} by ${steps} steps`);
+    const game = activeGames[gameId];
+    if (!game) {
       socket.emit('error', { message: 'Game does not exist' });
       return;
     }
     try {
-      const player = activeGames[gameId].players.find(p => p.id === playerId);
+      const player = game.players.find(p => p.id === playerId);
       if (player) {
-        player.move.front(steps);
-        const newPosition = activeGames[gameId].map.findPlayer(playerId);
-        // Database operation removed: await updatePlayerPosition(playerId, newPosition);
-        io.to(gameId).emit('playerMoved', { playerId, position: newPosition });
-        console.log(`Player ${playerId} moved forward ${steps} steps to position ${newPosition} in game ${gameId}`);
-        // Check for tile event
-        const tile = activeGames[gameId].map.tiles[newPosition];
-        if (tile.event.type !== 0) {
-          tile.event.onStep(playerId, activeGames[gameId]);
-          io.to(gameId).emit('tileEventTriggered', { playerId, eventType: tile.event.type });
-        }
+        // When moving forward by steps (e.g., via item), the total steps is the 'steps' value
+        await player.move.front(steps, steps); 
+        // player.move.front now handles emitting playerMoved and tileEventTriggered
+        console.log(`Player ${playerId} moved forward ${steps} steps in game ${gameId}`);
+      } else {
+        socket.emit('error', { message: 'Player not found' });
+        console.log(`Player not found: ${playerId} in game ${gameId}`);
       }
-    } catch (error) {
-      socket.emit('error', { message: 'Failed to move player' });
+    } catch (error: any) {
+      socket.emit('error', { message: 'Failed to move player', details: error.message || 'Unknown error' });
       console.error('Error moving player:', error);
     }
   });
 
   // Handle player movement by dice roll
-  socket.on('movePlayerDiceRoll', async (gameId: string, playerId: number, callback: (response: any) => void) => {
+  socket.on('movePlayerDiceRoll', async (gameId: string, playerId: number) => {
     console.log(`Received movePlayerDiceRoll request for game ${gameId}, player ${playerId}`);
-    if (!activeGames[gameId]) {
-      const errorResponse = { success: false, error: 'Game does not exist' };
+    const game = activeGames[gameId];
+    if (!game) {
       socket.emit('error', { message: 'Game does not exist' });
-      if (callback) callback(errorResponse);
       console.log(`Game does not exist: ${gameId}`);
       return;
     }
     try {
-      const currentPlayer = activeGames[gameId].getCurrentPlayerTurn();
+      const currentPlayer = game.getCurrentPlayerTurn();
       console.log(`Current player turn in game ${gameId}: ${currentPlayer}`);
       if (playerId !== currentPlayer) {
-        const errorResponse = { success: false, error: 'It is not your turn' };
         socket.emit('error', { message: 'It is not your turn' });
-        if (callback) callback(errorResponse);
         console.log(`It is not your turn, player ${playerId}, current turn is for player ${currentPlayer}`);
-
-        //Just in case lost current player turn and avoid deadlock
+        // Just in case lost current player turn and avoid deadlock
         io.to(gameId).emit('turnAdvanced', { currentPlayer: currentPlayer });
-
         return;
       }
-      
-      const currentPosition = activeGames[gameId].map.findPlayer(playerId);
-      console.log(`Player ${playerId} starting position before movement: ${currentPosition}`);
-      
-      const player = activeGames[gameId].players.find(p => p.id === playerId);
+
+      const player = game.players.find(p => p.id === playerId);
       if (player) {
-        const result = player.move.diceRoll();
-        const newPosition = activeGames[gameId].map.findPlayer(playerId);
+        await player.move.diceRoll(); // Call the async diceRoll method
 
-        // Always show the first chunk of movement, with a flag if move is pending due to a fork
-        io.to(gameId).emit('playerMoved', { 
-          playerId, 
-          position: newPosition, 
-          roll: result.roll, 
-          isPendingMove: !!result.pendingChoice 
-        });
-
-        // If there’s a fork, pause and ask the client
-        if (result.pendingChoice) {
-          player.pendingMove = { stepsRemaining: result.pendingChoice.stepsRemaining };
-          console.log(`Player ${playerId} encountered fork at tile ${newPosition}, options: ${result.pendingChoice.options}, steps remaining: ${result.pendingChoice.stepsRemaining}`);
-          socket.emit('pathChoiceRequired', {
-            playerId,
-            options: result.pendingChoice.options,
-            stepsRemaining: result.pendingChoice.stepsRemaining
-          });
-          return; // Wait for the client’s response
+        // After movement is complete (including any decisions), advance the turn
+        // Check if the player is still mid-movement (e.g., waiting for a decision)
+        if (!player.status.getIsMidMovement()) {
+             let nextPlayer;
+             // Special handling for single-player game to always return turn to the same player
+             if (game.players.length === 1) {
+                 nextPlayer = game.players[0].id;
+                 console.log(`Single-player game ${gameId}, turn remains with player: ${nextPlayer}`);
+             } else {
+                 nextPlayer = game.advanceTurn();
+                 console.log(`Turn advanced in multiplayer game ${gameId}, next player: ${nextPlayer}`);
+             }
+             io.to(gameId).emit('turnAdvanced', { currentPlayer: nextPlayer });
         } else {
-              // const game = activeGames[gameId];
-
-              // if (game.players.length === 1) {
-              //   console.log(`Single player ${playerId} moving`);
-              // }
-              // const nextPlayer = game.players.length === 1 ? playerId : game.advanceTurn();
-              // io.to(gameId).emit('turnAdvanced', { currentPlayer: nextPlayer });
-              // console.log(`Turn advanced to player ${nextPlayer} after move completion in game ${gameId}`);
+             console.log(`Player ${playerId} is mid-movement (likely waiting for a decision). Turn will not advance yet.`);
         }
-        
 
-        console.log(`Player ${playerId} moved by dice roll of ${result.roll} to position ${newPosition} in game ${gameId}`);
-        // Check for tile event
-        const tile = activeGames[gameId].map.tiles[newPosition];
-        if (tile.event.type !== 0) {
-          tile.event.onStep(playerId, activeGames[gameId]);
-          io.to(gameId).emit('tileEventTriggered', { playerId, eventType: tile.event.type });
-          console.log(`Tile event triggered for player ${playerId}: type ${tile.event.type}`);
-        }
-        if (callback) callback({ success: true, roll: result.roll, position: newPosition });
       } else {
-        const errorResponse = { success: false, error: 'Player not found' };
-        if (callback) callback(errorResponse);
+        socket.emit('error', { message: 'Player not found' });
         console.log(`Player not found: ${playerId} in game ${gameId}`);
       }
-    } catch (error) {
-      const errorResponse = { success: false, error: 'Failed to move player' };
-      socket.emit('error', { message: 'Failed to move player' });
-      if (callback) callback(errorResponse);
+    } catch (error: any) {
+      socket.emit('error', { message: 'Failed to move player', details: error.message || 'Unknown error' });
       console.error('Error moving player:', error);
     }
   });
@@ -500,51 +463,82 @@ io.on('connection', (socket) => {
   });
 
   // ──────────────────────────────────────────────────────────────
-  // Client picks a branch when `pathChoiceRequired` fires
-  socket.on('choosePath', (gameId: string, playerId: number, chosenTile: number) => {
+  // Handle client choosing a path at a Decision Tile
+  socket.on('pathChosen', async (gameId: string, playerId: number, chosenTileId: number, remainingSteps: number) => {
+    console.log(`Received pathChosen request for game ${gameId}, player ${playerId}, chosen tile: ${chosenTileId}, remaining steps: ${remainingSteps}`);
     const game = activeGames[gameId];
-    if (!game) return;
+    if (!game) {
+      socket.emit('error', { message: 'Game does not exist' });
+      return;
+    }
+    try {
+      const player = game.players.find(p => p.id === playerId);
+      if (player) {
+        // Set the resolved decision path and remaining steps in the player's status
+        player.status.setResolvedDecisionPath(chosenTileId);
+        player.status.setRemainingStepsAfterDecision(remainingSteps);
 
-    const player = game.players.find(p => p.id === playerId);
-    if (!player || !player.pendingMove) return;
+        console.log(`Continuing movement for player ${playerId} from decision tile with ${remainingSteps} steps remaining.`);
+        // Call front again to continue the movement from the decision point
+        await player.move.front(remainingSteps);
 
-    const currentPosition = game.map.findPlayer(playerId);
-    console.log(`Player ${playerId} at position ${currentPosition} chose path to tile ${chosenTile} with ${player.pendingMove.stepsRemaining} steps remaining`);
+        // After movement is complete, advance the turn if not mid-movement
+        if (!player.status.getIsMidMovement()) {
+             let nextPlayer;
+             if (game.players.length === 1) {
+                 nextPlayer = game.players[0].id;
+             } else {
+                 nextPlayer = game.advanceTurn();
+             }
+             io.to(gameId).emit('turnAdvanced', { currentPlayer: nextPlayer });
+        } else {
+             console.log(`Player ${playerId} is mid-movement (likely waiting for another decision). Turn will not advance yet.`);
+        }
 
-    // First move onto the selected branch
-    player.move.to(chosenTile);
+        // Clear pending move state if it exists (from old logic)
+        if (player.pendingMove) {
+            delete player.pendingMove;
+        }
 
-    // Finish the remaining steps, honouring *new* forks along the way
-    const followUp = player.move.front(player.pendingMove.stepsRemaining - 1);
-    const newPos = game.map.findPlayer(playerId);
-    console.log(`Player ${playerId} moved to tile ${newPos} after choosing path`);
-    io.to(gameId).emit('playerMoved', { 
-      playerId, 
-      position: newPos, 
-      isPendingMove: !!followUp.pendingChoice 
-    });
-
-    if (followUp.pendingChoice) {
-      player.pendingMove.stepsRemaining = followUp.pendingChoice.stepsRemaining;
-      console.log(`Player ${playerId} encountered another fork at tile ${newPos}, options: ${followUp.pendingChoice.options}, steps remaining: ${followUp.pendingChoice.stepsRemaining}`);
-      socket.emit('pathChoiceRequired', {
-        playerId,
-        options: followUp.pendingChoice.options,
-        stepsRemaining: followUp.pendingChoice.stepsRemaining
-      });
-    } else {
-      delete player.pendingMove; // finished this move
-      console.log(`Player ${playerId} completed movement at tile ${newPos}`);
-      // Automatically advance turn or keep it with the player in single-player mode
-
-      // if (game.players.length === 1) {
-      //   console.log(`Single player ${playerId} moving`);
-      // }
-      // const nextPlayer = game.players.length === 1 ? playerId : game.advanceTurn();
-      // io.to(gameId).emit('turnAdvanced', { currentPlayer: nextPlayer });
-      // console.log(`Turn advanced to player ${nextPlayer} after move completion in game ${gameId}`);
+      } else {
+        socket.emit('error', { message: 'Player not found' });
+        console.log(`Player not found: ${playerId} in game ${gameId}`);
+      }
+    } catch (error: any) {
+      socket.emit('error', { message: 'Failed to choose path', details: error.message || 'Unknown error' });
+      console.error('Error choosing path:', error);
     }
   });
+
+  // Handle player battle action
+  socket.on('playerBattleAction', async (gameId: string, playerId: number, action: string, actionData?: any) => {
+    console.log(`Received playerBattleAction for game ${gameId}, player ${playerId}, action: ${action}`);
+    const game = activeGames[gameId];
+    if (!game) {
+      socket.emit('error', { message: 'Game does not exist' });
+      return;
+    }
+    const player = game.players.find(p => p.id === playerId);
+    if (!player) {
+      socket.emit('error', { message: 'Player not found in game' });
+      return;
+    }
+    const battle = game.currentBattle;
+    if (!battle) {
+      socket.emit('error', { message: 'No active battle in this game' });
+      return;
+    }
+
+    // TODO: Implement logic in Battle.ts to process player action asynchronously
+    // This will likely involve a method like battle.processPlayerAction(playerId, action, actionData)
+    // and the battle.initiateBattle loop waiting for this action.
+    console.log(`Processing battle action for player ${playerId}: ${action}`);
+    // Placeholder for now:
+    // await battle.processPlayerAction(playerId, action, actionData);
+
+    // After processing the action, the battle logic should emit state updates and results.
+  });
+
 
   // Handle disconnection
   socket.on('disconnect', () => {
@@ -585,7 +579,7 @@ io.on('connection', (socket) => {
   });
 });
 
-app.use('/assets/', async (req, res) => {
+app.use('/assets/', (req, res) => { // Removed async
   // Add CORS headers to allow requests from any origin
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -593,10 +587,10 @@ app.use('/assets/', async (req, res) => {
   
   const filename = decodeURIComponent(req.originalUrl.replace('/assets/', ''));
   console.log(`Asset request: ${filename}`);
-  try {
-    const asset = await getAssetByFilename(filename);
-    if (asset) {
-      // Set appropriate content type based on asset metadata or filename extension
+  getAssetByFilename(filename) // Use .then().catch()
+    .then(async asset => { // Marked as async
+      if (asset) {
+        // Set appropriate content type based on asset metadata or filename extension
       // Extract just the filename from the path for extension checking
       const baseFilename = filename.split('/').pop() || filename;
       let contentType = 'application/octet-stream';
@@ -654,11 +648,12 @@ app.use('/assets/', async (req, res) => {
       }
     } else {
       res.status(404).send('Asset not found');
-    }
-  } catch (error) {
-    console.error('Error serving asset:', error);
-    res.status(500).send('Error retrieving asset');
-  }
+      }
+    })
+    .catch((error: any) => { // Explicitly type error as any
+      console.error('Error serving asset:', error);
+      res.status(500).send('Error retrieving asset');
+    });
 });
 
 // List of critical assets to preload (adjust based on your needs)
