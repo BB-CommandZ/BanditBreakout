@@ -224,7 +224,6 @@ selectInteractive.on('pointerdown', () => {
 });
 
 
-
     //containerBottom
     const containerBottom = this.add.container(960, 980);
     screen.add(containerBottom);
@@ -403,11 +402,11 @@ selectInteractive.on('pointerdown', () => {
   // Utility to map character IDs to asset paths
   private getCharacterAssetPath(characterId: number): string {
     const characterMap: { [key: number]: string } = {
-      1: 'character_asset/buckshotFront.svg',
-      2: 'character_asset/serpyFront.svg',
-      3: 'character_asset/gritFront.svg',
-      4: 'character_asset/solsticeFront.svg',
-      5: 'character_asset/scoutFront.svg'
+      1: 'character_asset/buckshotFront.svg', //BUCKSHOT
+      2: 'character_asset/serpyFront.svg', //SERPY 
+      3: 'character_asset/gritFront.svg', //GRIT
+      4: 'character_asset/solsticeFront.svg', //SOLSTICE
+      5: 'character_asset/scoutFront.svg'//SCOUT
       // Add other character mappings here
     };
     return characterMap[characterId] || 'character_asset/solsticeFront.svg'; // Default to Solstice if ID not found

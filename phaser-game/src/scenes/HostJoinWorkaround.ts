@@ -66,7 +66,14 @@ export class HostJoinWorkaround extends Phaser.Scene {
     this.socket.on("gameStarted", (data: { gameId: string, turnOrder: number[], currentPlayer: number }) => {
       console.log(`Game started with turn order: ${data.turnOrder}`);
       console.log(`${this.playerId}, ${data.currentPlayer}`);
-      this.scene.start("MapScene", { gameId: data.gameId, playerId: this.playerId, currentPlayerTurn: data.currentPlayer });
+      // Pass selectedCharacterId and selectedCharacterAsset to MapScene
+      this.scene.start("MapScene", {
+          gameId: data.gameId,
+          playerId: this.playerId,
+          currentPlayerTurn: data.currentPlayer,
+          selectedCharacterId: this.selectedCharacterId,
+          selectedCharacterAsset: this.selectedCharacterAsset
+      });
     });
 
     // Handle gameId event, transition to CharacterSelection

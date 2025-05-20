@@ -154,6 +154,24 @@ export class MapScene extends Phaser.Scene {
       this.cameras.main.scrollY = 0;
       console.log('Camera positioned at (0, 0) to ensure visibility of character sprites');
 
+      // Temporary button for testing endings
+      const testEndingButton = this.add.text(this.cameras.main.width - 20, 20, 'Test Ending', {
+          fontSize: '32px',
+          backgroundColor: '#fff',
+          color: '#000',
+          padding: { x: 10, y: 5 }
+      })
+      .setOrigin(1, 0) // Set origin to top-right
+      .setInteractive()
+      .on('pointerdown', () => {
+          // Use the selected character ID passed to the scene
+          const selectedCharId = this.playerToCharacterMap.get(this.playerId) || 1; // Default to 1 if not found
+          console.log(`Testing ending for character ID: ${selectedCharId}`);
+          this.scene.start('EndingScene', { characterId: selectedCharId });
+      });
+      testEndingButton.setDepth(100); // Ensure button is on top
+
+
       // Parse the CSV data after it's loaded
       this.parseTileLocations();
 
