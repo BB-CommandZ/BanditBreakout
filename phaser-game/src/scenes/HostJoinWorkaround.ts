@@ -81,6 +81,9 @@ export class HostJoinWorkaround extends Phaser.Scene {
   }
 
   create() {
+    // To test the BattleResultScene directly, uncomment the line below
+    // and change the 'outcome' to 'win' or 'lose'.
+    // this.scene.start('BattleResultScene', { outcome: 'lose' });
     // Background
     this.add
       .graphics()

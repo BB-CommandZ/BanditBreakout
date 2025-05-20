@@ -29,6 +29,8 @@ const config = {
     // Host,
     // Code,
     // Room,
+    // HostJoinWorkaround is the initial scene for the normal game flow.
+    // Uncomment the line below to start the game from this scene.
     HostJoinWorkaround,
     CharacterSelection,
     // // SettingsMenu,

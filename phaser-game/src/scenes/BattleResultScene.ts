@@ -34,14 +34,16 @@ export default class BattleResultScene extends Phaser.Scene {
         console.log('Background added at:', this.cameras.main.centerX, this.cameras.main.centerY);
 
         // Display victory or defeat image based on outcome
+        const victoryOffsetX = 400; // Offset to move the victory image to the right
+        const defeatOffsetX = -50; // Offset to move the defeat image to the right
         if (data.outcome === 'win') {
-            const victoryImage = this.add.image(this.cameras.main.centerX, this.cameras.main.centerY, 'victory');
-            victoryImage.setDisplaySize(400, 200); // Explicitly set size for visibility
+            const victoryImage = this.add.image(this.cameras.main.centerX + victoryOffsetX, this.cameras.main.centerY, 'victory');
+            victoryImage.setDisplaySize(1600, 800); // Explicitly set size for visibility
             victoryImage.setDepth(1); // Ensure it's above the background
             console.log('Victory image added with dimensions:', victoryImage.width, victoryImage.height);
         } else {
-            const defeatImage = this.add.image(this.cameras.main.centerX, this.cameras.main.centerY, 'defeat');
-            defeatImage.setDisplaySize(400, 200); // Explicitly set size for visibility
+            const defeatImage = this.add.image(this.cameras.main.centerX + defeatOffsetX, this.cameras.main.centerY, 'defeat');
+            defeatImage.setDisplaySize(1600, 800); // Explicitly set size for visibility
             defeatImage.setDepth(1); // Ensure it's above the background
             console.log('Defeat image added with dimensions:', defeatImage.width, defeatImage.height);
         }
