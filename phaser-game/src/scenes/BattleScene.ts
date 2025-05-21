@@ -14,8 +14,8 @@ export class BattleScene extends Phaser.Scene {
   private characterSettings: {
     [key: string]: { scale: number; offsetY: number };
   } = {
-    buckshot: { scale: 0.8, offsetY: 0 },
-    serpy: { scale: 0.7, offsetY: -30 },
+    buckshot: { scale: 0.7, offsetY: 0 },
+    serpy: { scale: 0.75, offsetY: -30 },
     grit: { scale: 0.75, offsetY: -20 },
     solstice: { scale: 0.65, offsetY: -50 },
     scout: { scale: 0.7, offsetY: -30 },
@@ -216,8 +216,12 @@ export class BattleScene extends Phaser.Scene {
     bannerTextTwo.setOrigin(0.5);
     bannerTwoContainer.add(bannerTextTwo);
 
+    // For player character
     const playerContainer = this.add.container(800, 700);
-    
+
+    // Add shadow for player character (relative to container position)
+    const playerShadow = this.add.ellipse(-90, 300, 450, 150, 0x000000, 0.4);
+    playerContainer.add(playerShadow);
 
     // Debug logs
     const backKey = `${this.playerName.toLowerCase()}-back`;
@@ -259,8 +263,12 @@ export class BattleScene extends Phaser.Scene {
     playerChar.setY(playerChar.y + playerSettings.offsetY);
     playerContainer.add(playerChar);
 
+    // For enemy character
     const enemyContainer = this.add.container(1430, 300);
-    
+
+    // Add shadow for enemy character (relative to container position)
+    const enemyShadow = this.add.ellipse(0, 200, 400, 130, 0x000000, 0.4);
+    enemyContainer.add(enemyShadow);
 
     // Display enemy character (front view)
     const enemyChar = this.add.image(-20, 70, this.enemyName.toLowerCase());
