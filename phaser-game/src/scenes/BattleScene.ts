@@ -10,6 +10,17 @@ export class BattleScene extends Phaser.Scene {
 
   private fontsReady = false;
 
+  private currentTurn: "player" | "enemy" = "player";
+  private playerHP: number = 10;
+  private enemyHP: number = 10;
+  private playerHealthBar!: Phaser.GameObjects.Image;
+  private enemyHealthBar!: Phaser.GameObjects.Image;
+  private playerHealthText!: Phaser.GameObjects.Text;
+  private enemyHealthText!: Phaser.GameObjects.Text;
+
+  private healthBackOneContainer!: Phaser.GameObjects.Container;
+  private healthBackTwoContainer!: Phaser.GameObjects.Container;
+
   // Add character settings for battle scene
   private characterSettings: {
     [key: string]: { scale: number; offsetY: number };
@@ -280,5 +291,115 @@ export class BattleScene extends Phaser.Scene {
     enemyChar.setDisplaySize(scaledSize * 0.8, scaledSize);
     enemyChar.setY(enemyChar.y + settings.offsetY);
     enemyContainer.add(enemyChar);
+
+    // Store references to health bars and texts
+    this.playerHealthBar = healthBarTwo;
+    this.enemyHealthBar = healthBarOne;
+    this.playerHealthText = healthTextTwo;
+    this.enemyHealthText = healthTextOne;
+
+    // Store container references
+    this.healthBackOneContainer = healthBackOneContainer;
+    this.healthBackTwoContainer = healthBackTwoContainer;
+
+    // Start battle with player's turn
+    this.showDiceRollButton();
+  }
+
+  private showDiceRollButton() {
+    const button = this.add
+      .text(100, 900, "Roll Dice", {
+        fontSize: "32px",
+        backgroundColor: "#4CAF50",
+        color: "#ffffff",
+        padding: { x: 20, y: 10 },
+      })
+      .setOrigin(0, 1)
+      .setInteractive({ useHandCursor: true })
+      .on("pointerdown", () => {
+        this.handleDiceRoll();
+        button.destroy();
+      });
+  }
+
+  private handleDiceRoll() {
+    const roll = Math.floor(Math.random() * 6) + 1;
+
+    // Show dice roll result
+    const rollText = this.add.text(100, 850, `Rolled: ${roll}`, {
+      fontSize: "28px",
+      color: "#ffffff",
+    });
+
+    // Apply damage
+    if (this.currentTurn === "player") {
+      this.dealDamage("enemy", roll);
+      this.currentTurn = "enemy";
+      // Enemy's turn after delay
+      this.time.delayedCall(1500, () => {
+        rollText.destroy();
+        this.handleEnemyTurn();
+      });
+    } else {
+      this.dealDamage("player", roll);
+      this.currentTurn = "player";
+      // Player's turn after delay
+      this.time.delayedCall(1500, () => {
+        rollText.destroy();
+        this.showDiceRollButton();
+      });
+    }
+  }
+
+  private handleEnemyTurn() {
+    this.handleDiceRoll();
+  }
+
+  private dealDamage(target: "player" | "enemy", amount: number) {
+    if (target === "player") {
+      this.playerHP = Math.max(0, this.playerHP - amount);
+      this.playerHealthText.setText(`${this.playerHP}/10`);
+      // Get the health back bar
+      const healthBackBar = this.healthBackTwoContainer.getAt(
+        0
+      ) as Phaser.GameObjects.Image;
+
+      // Calculate new width
+      const newWidth = (600 * this.playerHP) / 10;
+
+      // Set origin to left side (0, 0.5) to shrink from left to right
+      healthBackBar.setOrigin(0, 0.5);
+      healthBackBar.setDisplaySize(newWidth, healthBackBar.displayHeight);
+      healthBackBar.setX(-300); // Offset to align with container center
+
+      if (this.playerHP <= 0) {
+        this.endBattle("enemy");
+      }
+    } else {
+      this.enemyHP = Math.max(0, this.enemyHP - amount);
+      this.enemyHealthText.setText(`${this.enemyHP}/10`);
+      // Get the health back bar
+      const healthBackBar = this.healthBackOneContainer.getAt(
+        0
+      ) as Phaser.GameObjects.Image;
+
+      // Calculate new width
+      const newWidth = (600 * this.enemyHP) / 10;
+
+      // Set origin to left side (0, 0.5) to shrink from left to right
+      healthBackBar.setOrigin(0, 0.5);
+      healthBackBar.setDisplaySize(newWidth, healthBackBar.displayHeight);
+      healthBackBar.setX(-300); // Offset to align with container center
+
+      if (this.enemyHP <= 0) {
+        this.endBattle("player");
+      }
+    }
+  }
+
+  private endBattle(winner: "player" | "enemy") {
+    this.scene.start("BattleResultScene", {
+      outcome: winner === "player" ? "win" : "lose",
+    });
   }
 }

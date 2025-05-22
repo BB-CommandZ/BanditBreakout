@@ -19,10 +19,16 @@ export default class Battle {
   }
 
   private rollDice(): number {
-    return Math.floor(Math.random() * 6) + 1; // Roll a die (1-6)
+    return Math.floor(Math.random() * 6) + 1; // Roll a dice (1-6)
   }
 
-  public processTurn(): { result: string, playerHP: number, opponentHP: number, winner: Player | null, turn: number } {
+  public processTurn(): {
+    result: string;
+    playerHP: number;
+    opponentHP: number;
+    winner: Player | null;
+    turn: number;
+  } {
     this.checkBattleEffects(this.player);
     this.checkBattleEffects(this.opponent);
 
@@ -60,7 +66,13 @@ export default class Battle {
       }
     }
 
-    return { result, playerHP: this.playerHP, opponentHP: this.opponentHP, winner, turn };
+    return {
+      result,
+      playerHP: this.playerHP,
+      opponentHP: this.opponentHP,
+      winner,
+      turn,
+    };
   }
 
   private applyLossConsequences(loser: Player, winner: Player): void {
@@ -72,7 +84,13 @@ export default class Battle {
     winner.gold(`+${goldToTransfer}`);
   }
 
-  public processEndOfRoundBattle(): { result: string, winner: Player | null, itemTransferred?: number, goldTransferred?: number, turn: number } {
+  public processEndOfRoundBattle(): {
+    result: string;
+    winner: Player | null;
+    itemTransferred?: number;
+    goldTransferred?: number;
+    turn: number;
+  } {
     const turnResult = this.processTurn();
     let result = turnResult.result;
     let winner = turnResult.winner;
@@ -84,7 +102,9 @@ export default class Battle {
       const loser = winner.id === this.player.id ? this.opponent : this.player;
       // Winner takes a random item or 3 gold from loser
       if (loser.inventory.items.length > 0 && Math.random() < 0.5) {
-        const randomItemIndex = Math.floor(Math.random() * loser.inventory.items.length);
+        const randomItemIndex = Math.floor(
+          Math.random() * loser.inventory.items.length
+        );
         const item = loser.inventory.items[randomItemIndex];
         itemTransferred = item.id;
         loser.inventory.removeItem(item);
