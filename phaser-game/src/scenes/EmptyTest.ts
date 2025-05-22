@@ -1,7 +1,10 @@
 import Phaser from "phaser";
 import settingsListener from "../middleware/settingsListener";
+import { SocketService } from "../services/SocketService";
 
 export class EmptyTest extends Phaser.Scene {
+  private socket = SocketService.getInstance();
+
   constructor() {
     super("EmptyTest");
   }
@@ -13,10 +16,24 @@ export class EmptyTest extends Phaser.Scene {
       .fillRect(0, 0, 1920, 1080);
     settingsListener(this);
 
-    // In your game's main scene or wherever you start the BattleScene
-    this.scene.start("BattleScene", {
-      selectedCharacterId: 1, // Test with Buckshot (ID: 1)
-      enemyCharacterId: 2, // Test with Serpy (ID: 2)
+    // Create a game for testing
+    const testGameId = "test_battle_game";
+
+    // First player
+    this.socket.emit("hostLobby");
+
+    this.socket.on("gameId", (data: { gameId: string; playerId: number }) => {
+      // Start battle scene for first player
+      this.scene.start("BattleScene", {
+        gameId: data.gameId,
+        playerId: data.playerId,
+        selectedCharacterId: 1, // Buckshot
+        enemyCharacterId: 2, // Serpy
+      });
+
+      // For testing second player, open another browser window
+      // and join with the gameId shown in console
+      console.log("Game created with ID:", data.gameId);
     });
   }
 }

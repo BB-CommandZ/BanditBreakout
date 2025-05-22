@@ -8,6 +8,7 @@ export default class Battle {
   private playerHP: number;
   private opponentHP: number;
   private amountBuff: { buffType: string; amount: number };
+  private turn: number;
 
   constructor(player: Player, opponent: Player) {
     this.player = player;
@@ -16,62 +17,52 @@ export default class Battle {
     this.playerHP = 10; // Starting HP for battle
     this.opponentHP = 10; // Starting HP for battle
     this.amountBuff = { buffType: "none", amount: 0 };
+    this.turn = 1; // Initialize turn
   }
 
   private rollDice(): number {
     return Math.floor(Math.random() * 6) + 1; // Roll a dice (1-6)
   }
 
-  public processTurn(): {
+  public processTurn(roll: number): {
     result: string;
     playerHP: number;
     opponentHP: number;
     winner: Player | null;
     turn: number;
   } {
-    this.checkBattleEffects(this.player);
-    this.checkBattleEffects(this.opponent);
-
-    let turn = 0;
     let result = "";
     let winner: Player | null = null;
 
-    // Continue battle until one player is defeated
-    while (this.playerHP > 0 && this.opponentHP > 0) {
-      turn++;
-      const playerRoll = this.rollDice();
-      const opponentRoll = this.rollDice();
+    if (this.turn === 1) {
+      // Player's turn
+      this.opponentHP = Math.max(0, this.opponentHP - roll);
+      result = `Player ${this.player.id} rolled ${roll}, dealing ${roll} damage.`;
 
-      // Damage is equal to the dice roll (number of bullets shot)
-      this.opponentHP -= playerRoll;
-      this.playerHP -= opponentRoll;
-
-      result += `Turn ${turn}: Player ${this.player.id} rolled ${playerRoll}, dealing ${playerRoll} damage. `;
-      result += `Player ${this.opponent.id} rolled ${opponentRoll}, dealing ${opponentRoll} damage. `;
-      result += `Player ${this.player.id} HP: ${this.playerHP}, Player ${this.opponent.id} HP: ${this.opponentHP}.\n`;
-
-      if (this.playerHP <= 0 && this.opponentHP <= 0) {
-        result += "It's a draw! Both players are knocked out.";
-        break;
-      } else if (this.playerHP <= 0) {
-        result += `Player ${this.opponent.id} wins after ${turn} turns!`;
-        winner = this.opponent;
-        this.applyLossConsequences(this.player, this.opponent);
-        break;
-      } else if (this.opponentHP <= 0) {
-        result += `Player ${this.player.id} wins after ${turn} turns!`;
+      if (this.opponentHP <= 0) {
+        result += ` Player ${this.player.id} wins!`;
         winner = this.player;
-        this.applyLossConsequences(this.opponent, this.player);
-        break;
+      }
+    } else {
+      // Opponent's turn
+      this.playerHP = Math.max(0, this.playerHP - roll);
+      result = `Opponent rolled ${roll}, dealing ${roll} damage.`;
+
+      if (this.playerHP <= 0) {
+        result += ` Opponent wins!`;
+        winner = this.opponent;
       }
     }
+
+    // Switch turn
+    this.turn = this.turn === 1 ? 2 : 1;
 
     return {
       result,
       playerHP: this.playerHP,
       opponentHP: this.opponentHP,
       winner,
-      turn,
+      turn: this.turn,
     };
   }
 
@@ -91,7 +82,7 @@ export default class Battle {
     goldTransferred?: number;
     turn: number;
   } {
-    const turnResult = this.processTurn();
+    const turnResult = this.processTurn(this.rollDice());
     let result = turnResult.result;
     let winner = turnResult.winner;
     let itemTransferred: number | undefined;
