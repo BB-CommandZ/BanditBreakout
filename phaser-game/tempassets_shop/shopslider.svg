@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 113.8 14.77">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #95602d;
+        stroke: #472b15;
+        stroke-miterlimit: 10;
+        stroke-width: 1.32px;
+      }
+
+      .cls-2 {
+        fill: #472b15;
+      }
+
+      .cls-3 {
+        fill: #774214;
+        opacity: .36;
+      }
+    </style>
+  </defs>
+  <g id="sound">
+    <g>
+      <rect class="cls-1" x=".66" y=".66" width="112.48" height="13.45" rx="5.84" ry="5.84"/>
+      <rect class="cls-2" x="10.61" y="5.61" width="99.46" height="3.56" rx="1.78" ry="1.78"/>
+      <path class="cls-3" d="M107.41,13.45l-101.51.33c-1.91-.72-2.82-2.18-4.28-3.63l-.64-3.1c0-1.96,2.21-3.56,4.91-3.56h102.33c2.7,0,4.91,1.6,4.91,3.56l-.64,3.03c-.99.83-2.39,3.36-5.09,3.36Z"/>
+    </g>
+  </g>
+</svg>

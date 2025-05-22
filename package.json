@@ -4,7 +4,7 @@
   "description": "There will be a bunch of useful stuff",
   "main": "index.tsx",
   "scripts": {
-    "game": "NODE_OPTIONS=--max-old-space-size=4096 concurrently \"redis-server\" \"npm run server\" \"npm start\"",
+    "game": "concurrently \"redis-server\" \"npm run server\" \"npm start\"",
     "test": "jest",
     "test:cache": "tsx backend/tests/cacheTest.ts",
     "test:assets": "jest backend/tests/assetsOpsTest.ts",
@@ -12,8 +12,8 @@
     "test:simple-client": "tsx backend/tests/simple-test-client.ts",
     "test:db": "tsx backend/tests/dbTest.ts",
     "dev": "vite --port 30006 --host 0.0.0.0",
-    "start": "NODE_OPTIONS=--max-old-space-size=4096 vite phaser-game --port 30006 --host 0.0.0.0",
-    "server": "NODE_OPTIONS=--max-old-space-size=4096 HOST=0.0.0.0 tsx backend/server.ts",
+    "start": "vite phaser-game --port 30006 --host 0.0.0.0",
+    "server": "tsx backend/server.ts",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "live": "live-server --port=30006"

@@ -10,6 +10,8 @@ import { HostJoinWorkaround } from "./scenes/HostJoinWorkaround";
 import { BattleScene } from "./scenes/BattleScene";
 import BattleResultScene  from "./scenes/BattleResultScene";
 import { Gui } from "./scenes/Gui";
+import ShopScene from "./scenes/ShopScene"; // Import ShopScene
+import { SocketService } from "./services/SocketService"; // Import SocketService
 
 const config = {
   type: Phaser.AUTO,
@@ -36,6 +38,7 @@ const config = {
     MapScene,
     BattleScene,
     BattleResultScene,
+    ShopScene, // Add ShopScene to the scene list
   ],
   scale: {
     mode: Phaser.Scale.FIT,
@@ -46,4 +49,16 @@ const config = {
   }
 };
 
-new Phaser.Game(config);
+const game = new Phaser.Game(config); // Store the game instance
+
+// Get the SocketService instance
+const socketService = SocketService.getInstance();
+
+// Listen for the 'shopOpen' event
+socketService.on('shopOpen', (data: any) => {
+    console.log("Received shopOpen event in main.ts", data);
+    // Stop the current scene and start the ShopScene
+    // Assuming the current active scene is MapScene when the shop opens
+    game.scene.stop('MapScene');
+    game.scene.start('ShopScene', data); // Pass the shop data to the ShopScene
+});

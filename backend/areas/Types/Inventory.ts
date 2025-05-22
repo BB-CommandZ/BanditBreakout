@@ -6,7 +6,7 @@ export default class Inventory {
     private player: Player;
     private game: Game;
     items: IBaseItem[]
-    
+
     constructor(player: Player) {
         this.player = player;
         this.game = this.player.game;
@@ -86,10 +86,14 @@ export default class Inventory {
         }
     }
 
+    public canAddItem(): boolean {
+        const MAX_ITEMS = 3; // Assuming max 3 items based on ShopEvent comment
+        return this.items.length < MAX_ITEMS;
+    }
 
-/**
+    /**
   * Uses an item from the inventory
-  * 
+  *
   * @param itemId - item id to use (If they have it)
   * @param targetPlayer - optional target player for battle items
   * - 0: LassoItem
@@ -104,32 +108,31 @@ export default class Inventory {
   * - 9: MagicCarpetItem
   * - 10: WindStaffItem
   */
-public useItem(itemId: number, targetPlayer?: Player): void {
-    const item = this.findItem(itemId);
-    
-    if (!item) {
-        console.log(`Item with ID ${itemId} not found in inventory.`);
-        return;
-    }
-    
-    if (item.isBattleItem) {
-        const battleItem = item as IBattleItem;
-        
-        if (!targetPlayer) {
-            console.log(`Battle item ${item.name} requires a target player.`);
+    public useItem(itemId: number, targetPlayer?: Player): void {
+        const item = this.findItem(itemId);
+
+        if (!item) {
+            console.log(`Item with ID ${itemId} not found in inventory.`);
             return;
         }
-        
-        battleItem.useAgainst(targetPlayer);
-        console.log(`Player ${this.player.id} used ${item.name} against Player ${targetPlayer.id}`);
-    } else {
-        
-        const mapItem = item as IMapItem;
-        mapItem.use();
-        console.log(`Player ${this.player.id} used item: ${item.name}`);
-    }
-    
-    this.removeItem(item);
-}
 
+        if (item.isBattleItem) {
+            const battleItem = item as IBattleItem;
+
+            if (!targetPlayer) {
+                console.log(`Battle item ${item.name} requires a target player.`);
+                return;
+            }
+
+            battleItem.useAgainst(targetPlayer);
+            console.log(`Player ${this.player.id} used ${item.name} against Player ${targetPlayer.id}`);
+        } else {
+
+            const mapItem = item as IMapItem;
+            mapItem.use();
+            console.log(`Player ${this.player.id} used item: ${item.name}`);
+        }
+
+        this.removeItem(item);
+    }
 }

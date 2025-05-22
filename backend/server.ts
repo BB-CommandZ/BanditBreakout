@@ -3,6 +3,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import Game from './areas/Types/Game';
 import Player from './areas/Types/Player';
+import { ShopEvent } from './areas/Types/Event'; // Import ShopEvent
 import { v4 as uuidv4 } from 'uuid';
 import { getAssetByFilename } from './db/operations/assetsOps';
 import { MongoClient, GridFSBucket } from 'mongodb';
@@ -169,7 +170,7 @@ io.on('connection', (socket) => {
   //       console.log(`Game ${gameId} started with turn order: ${turnOrder}, first player: ${currentPlayer}`);
   //     }
   //   } catch (error) {
-  //     socket.emit('error', { message: 'Failed to start game', details: error || 'Unknown error' });
+  //     socket.emit('error', { message: 'Failed to start game' });
   //     console.error('Error starting game:', error);
   //   }
   // });
@@ -267,7 +268,7 @@ io.on('connection', (socket) => {
         // Check for tile event
         const tile = activeGames[gameId].map.tiles[position];
         if (tile.event.type !== 0) { // Assuming 0 is 'NothingEvent'
-          await tile.event.onStep(playerId, activeGames[gameId]);
+          await tile.event.onStep(playerId, activeGames[gameId], 0); // Pass 0 for totalStepsRemainingInSequence
           await emitTileTrigger(gameId, playerId, tile.event.type);
         }
       }
@@ -294,7 +295,7 @@ io.on('connection', (socket) => {
         // Check for tile event
         const tile = activeGames[gameId].map.tiles[newPosition];
         if (tile.event.type !== 0) {
-          await tile.event.onStep(playerId, activeGames[gameId]);
+          await tile.event.onStep(playerId, activeGames[gameId], 0); // Pass 0 for totalStepsRemainingInSequence
           await emitTileTrigger(gameId, playerId, tile.event.type);
         }
       }
@@ -371,7 +372,7 @@ io.on('connection', (socket) => {
         // Check for tile event
         const tile = activeGames[gameId].map.tiles[newPosition];
         if (tile.event.type !== 0) {
-          await tile.event.onStep(playerId, activeGames[gameId]);
+          await tile.event.onStep(playerId, activeGames[gameId], 0); // Pass 0 for totalStepsRemainingInSequence
           await emitTileTrigger(gameId, playerId, tile.event.type);
           console.log(`Tile event triggered for player ${playerId}: type ${tile.event.type}`);
         }
@@ -461,35 +462,71 @@ io.on('connection', (socket) => {
   const emitTileTrigger = async (gameId: string, playerId: number, eventType: number) => {
     io.to(gameId).emit('tileEventTriggered', { playerId, eventType, gameId });
 
-    // EVENTS 178
-    const player = activeGames[gameId].players.find(p => p.id === playerId);
-    if (activeGames[gameId] && player) {
-      
-      if (eventType === 7 || eventType === 8 || eventType === 1) {
-      try {
+    const game = activeGames[gameId];
+    const player = game?.players.find(p => p.id === playerId);
+
+    if (!game || !player) {
+      console.error(`emitTileTrigger: Game ${gameId} or Player ${playerId} not found.`);
+      return;
+    }
+
+    // Handle specific event types
+    switch (eventType) {
+      case 1: // SafeEvent
+      case 7: // MiningEvent
+      case 8: // DecisionEvent (assuming DecisionEvent might also update gold/status)
+        try {
           const gold = player.getGold ? player.getGold() : (player.status?.gold ?? 0);
           io.to(gameId).emit('statusChange', {gameId, playerId, resource: 'gold', value: gold });
           console.log(`statusChange emitted for player ${playerId} (eventType ${eventType}) with gold: ${gold}`);
-        
-      } catch (error) {
-        socket.emit('error', { message: 'Failed to emit tile event' });
-        console.error('Error emitting tile event:', error);
-      }
-    }
+        } catch (error) {
+          console.error('Error emitting gold status change:', error);
+        }
+        break;
 
-      if (eventType === 4) {
+      case 4: // ItemEvent
         try {
           const latestItem = player.inventory.items[player.inventory.items.length - 1];
           io.to(gameId).emit('statusChange', {gameId, playerId, resource: 'item', value: latestItem?.id });
           console.log(`statusChange emitted for player ${playerId} (eventType ${eventType}) with item: ${latestItem?.id}`);
+        } catch (error) {
+          console.error('Error emitting item status change:', error);
         }
-        catch (error) {
-          socket.emit('error', { message: 'Failed to emit tile event' });
-          console.error('Error emitting tile event:', error);
+        break;
+
+      case 5: // ShopEvent
+        try {
+          const playerPosition = game.map.findPlayer(playerId); // Get player's current position
+          const tile = game.map.tiles[playerPosition];
+          const shopEvent = tile.event as ShopEvent; // Cast to ShopEvent
+
+          if (shopEvent && shopEvent.allShopItems) { // Check if it's a ShopEvent and has items
+             // Select 3 random items
+            const shuffledItems = shopEvent.allShopItems.sort(() => 0.5 - Math.random());
+            const itemsForSale = shuffledItems.slice(0, 3);
+
+            const playerGold = player.getGold();
+            const playerSocketId = playerToSocketMap[playerId];
+
+            if (playerSocketId) {
+              io.to(playerSocketId).emit('shopOpen', { items: itemsForSale, playerGold: playerGold });
+              console.log(`Shop opened for Player ${playerId}. Items:`, itemsForSale);
+            } else {
+              console.error(`Socket ID not found for Player ${playerId}. Cannot open shop.`);
+            }
+          } else {
+             console.error(`Tile event is not a ShopEvent or missing items for game ${gameId}, player ${playerId}, eventType ${eventType}`);
+          }
+        } catch (error) {
+          console.error('Error emitting shop open event:', error);
         }
-      }
+        break;
+
+      default:
+        console.log(`No specific emit logic for event type ${eventType}`);
+        break;
     }
-    }
+  }
 
   // Handle game start request (from host)
   // socket.on('startGameFromHost', async (gameId: string) => {
@@ -616,82 +653,219 @@ io.on('connection', (socket) => {
       delete socketToPlayerMap[socket.id];
     }
   });
+
+  // Handle test shop event (for debugging/testing)
+  socket.on('testShop', async (gameId: string, playerId: number) => {
+    console.log(`Received testShop request for game ${gameId}, player ${playerId}`);
+    if (!activeGames[gameId]) {
+      socket.emit('error', { message: 'Game does not exist' });
+      return;
+    }
+    try {
+      const game = activeGames[gameId];
+      const player = game.players.find(p => p.id === playerId);
+
+      if (!player) {
+        socket.emit('shopError', { message: 'Player not found in game' });
+        return;
+      }
+
+      // Find a shop tile to get shop items from (assuming at least one exists)
+      const shopTile = game.map.tiles.find(tile => tile.event.type === 5); // Assuming type 5 is ShopEvent
+
+      if (!shopTile) {
+        console.error(`No shop tile found in game ${gameId}. Cannot test shop.`);
+        socket.emit('shopError', { message: 'No shop available in this game.' });
+        return;
+      }
+
+      const shopEvent = shopTile.event as ShopEvent;
+
+      if (!shopEvent || !shopEvent.allShopItems) {
+         console.error(`Shop tile event is not a ShopEvent or missing items for game ${gameId}. Cannot test shop.`);
+         socket.emit('shopError', { message: 'Shop data missing.' });
+         return;
+      }
+
+      // Select 3 random items for the test shop
+      const shuffledItems = shopEvent.allShopItems.sort(() => 0.5 - Math.random());
+      const itemsForSale = shuffledItems.slice(0, 3);
+
+      const playerGold = player.getGold();
+      const playerSocketId = playerToSocketMap[playerId];
+
+      if (playerSocketId) {
+        io.to(playerSocketId).emit('shopOpen', { items: itemsForSale, playerGold: playerGold });
+        console.log(`Test shop opened for Player ${playerId}. Items:`, itemsForSale);
+      } else {
+        console.error(`Socket ID not found for Player ${playerId}. Cannot open test shop.`);
+      }
+
+    } catch (error) {
+      socket.emit('shopError', { message: 'Failed to open test shop.' });
+      console.error('Error handling test shop request:', error);
+    }
+  });
+
+  // Handle shop item purchase
+  socket.on('buyShopItem', async (gameId: string, playerId: number, itemId: number) => {
+    if (!activeGames[gameId]) {
+      socket.emit('error', { message: 'Game does not exist' });
+      return;
+    }
+    try {
+      const game = activeGames[gameId];
+      const player = game.players.find(p => p.id === playerId);
+
+      if (!player) {
+        socket.emit('shopError', { message: 'Player not found in game' });
+        return;
+      }
+
+      const playerPosition = game.map.findPlayer(playerId);
+      const tile = game.map.tiles[playerPosition];
+      const shopEvent = tile.event as ShopEvent;
+
+      if (!shopEvent || !shopEvent.allShopItems) {
+         socket.emit('shopError', { message: 'Not currently at a shop or shop data missing.' });
+         return;
+      }
+
+      const itemToBuy = shopEvent.allShopItems.find(item => item.id === itemId);
+
+      if (!itemToBuy) {
+        socket.emit('shopError', { message: 'Invalid item selected.' });
+        return;
+      }
+
+      if (player.getGold() < itemToBuy.price) {
+        socket.emit('shopError', { message: 'Not enough gold.' });
+        return;
+      }
+
+      if (!player.inventory.canAddItem()) {
+        socket.emit('shopError', { message: 'Inventory is full.' });
+        return;
+      }
+
+      // Purchase successful
+      player.gold(`-${itemToBuy.price}`); // Deduct gold
+      player.inventory.obtain(itemToBuy.id); // Add item
+
+      // Send confirmation and updated status to the player
+      const playerSocketId = playerToSocketMap[playerId];
+      if (playerSocketId) {
+        io.to(playerSocketId).emit('itemPurchased', { 
+          itemId: itemToBuy.id, 
+          itemName: itemToBuy.name, 
+          remainingGold: player.getGold(),
+          inventory: player.inventory.items.map(item => ({ id: item.id, name: item.name })) // Send updated inventory
+        });
+        console.log(`Player ${playerId} bought item ${itemToBuy.name} for ${itemToBuy.price} gold.`);
+      } else {
+        console.error(`Socket ID not found for Player ${playerId}. Cannot send purchase confirmation.`);
+      }
+
+      // Optionally, send updated game state to all players if inventory/gold changes are globally relevant
+      io.to(gameId).emit('gameState', serializeGame(game));
+
+
+    } catch (error) {
+      socket.emit('shopError', { message: 'Failed to purchase item.' });
+      console.error('Error handling shop purchase:', error);
+    }
+  });
 });
 
-app.use('/assets/', async (req, res) => {
-  // Add CORS headers to allow requests from any origin
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  
-  const filename = decodeURIComponent(req.originalUrl.replace('/assets/', ''));
-  console.log(`Asset request: ${filename}`);
-  try {
-    const asset = await getAssetByFilename(filename);
-    if (asset) {
-      // Set appropriate content type based on asset metadata or filename extension
-      // Extract just the filename from the path for extension checking
-      const baseFilename = filename.split('/').pop() || filename;
-      let contentType = 'application/octet-stream';
-      if (baseFilename.toLowerCase().endsWith('.png')) contentType = 'image/png';
-      else if (baseFilename.toLowerCase().endsWith('.jpg') || baseFilename.toLowerCase().endsWith('.jpeg')) contentType = 'image/jpeg';
-      else if (baseFilename.toLowerCase().endsWith('.gif')) contentType = 'image/gif';
-      else if (baseFilename.toLowerCase().endsWith('.svg')) contentType = 'image/svg+xml';
-      else if (baseFilename.toLowerCase().endsWith('.mp3')) contentType = 'audio/mpeg';
-      else if (baseFilename.toLowerCase().endsWith('.wav')) contentType = 'audio/wav';
-      else if (baseFilename.toLowerCase().endsWith('.mp4')) contentType = 'video/mp4';
-      else if (baseFilename.toLowerCase().endsWith('.json')) contentType = 'application/json';
-      
-      res.setHeader('Content-Type', contentType);
-      
-      // Check if asset.data exists (from regular collection) or if we need to stream from GridFS
-      if (asset.data) {
+// Serve static shop assets directly
+app.use('/assets/tempassets_shop', express.static('phaser-game/tempassets_shop'));
 
-        // Check if asset.data is a Buffer or needs conversion
-        let buf;
-        if (Buffer.isBuffer(asset.data)) {
-          buf = asset.data;
-        } else if (typeof asset.data === 'string') {
-          buf = Buffer.from(asset.data, 'base64');
+app.use('/assets/', (req, res, next) => {
+  // Wrap the async middleware to catch errors and pass them to next()
+  Promise.resolve().then(async () => {
+    // Add CORS headers to allow requests from any origin
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    
+    const filename = decodeURIComponent(req.originalUrl.replace('/assets/', ''));
+    console.log(`Asset request: ${filename}`);
+    try {
+      const asset = await getAssetByFilename(filename);
+      if (asset) {
+        // Set appropriate content type based on asset metadata or filename extension
+        // Extract just the filename from the path for extension checking
+        const baseFilename = filename.split('/').pop() || filename;
+        let contentType = 'application/octet-stream';
+        if (baseFilename.toLowerCase().endsWith('.png')) contentType = 'image/png';
+        else if (baseFilename.toLowerCase().endsWith('.jpg') || baseFilename.toLowerCase().endsWith('.jpeg')) contentType = 'image/jpeg';
+        else if (baseFilename.toLowerCase().endsWith('.gif')) contentType = 'image/gif';
+        else if (baseFilename.toLowerCase().endsWith('.svg')) contentType = 'image/svg+xml';
+        else if (baseFilename.toLowerCase().endsWith('.mp3')) contentType = 'audio/mpeg';
+        else if (baseFilename.toLowerCase().endsWith('.wav')) contentType = 'audio/wav';
+        else if (baseFilename.toLowerCase().endsWith('.mp4')) contentType = 'video/mp4';
+        else if (baseFilename.toLowerCase().endsWith('.json')) contentType = 'application/json';
+        
+        res.setHeader('Content-Type', contentType);
+        
+        // Check if asset.data exists (from regular collection) or if we need to stream from GridFS
+        if (asset.data) {
+
+          // Check if asset.data is a Buffer or needs conversion
+          let buf;
+          if (Buffer.isBuffer(asset.data)) {
+            buf = asset.data;
+          } else if (typeof asset.data === 'string') {
+            buf = Buffer.from(asset.data, 'base64');
+          } else {
+            console.error('Unexpected asset.data type:', typeof asset.data);
+            // Pass error to next middleware
+            return next(new Error('Error processing asset data'));
+          }
+
+          // (optional) set length so clients know when the stream ends
+          res.setHeader('Content-Length', buf.length);
+
+          return res.send(buf);
+
+
         } else {
-          console.error('Unexpected asset.data type:', typeof asset.data);
-          return res.status(500).send('Error processing asset data');
+
+          // ── Stream large assets directly from GridFS ──
+          const client = new MongoClient(process.env.MONGODB_URI || 'mongodb://localhost:27017');
+          await client.connect();
+          const db = client.db(DB_NAME);
+          const bucket = new GridFSBucket(db, { bucketName: GRIDFS_BUCKET });
+
+          const downloadStream = bucket.openDownloadStreamByName(filename);
+
+          downloadStream.on('error', (err) => {
+            console.error('GridFS stream error:', err);
+            if (!res.headersSent) {
+               // Pass error to next middleware
+               next(err);
+            } else {
+               // Log error if headers already sent
+               console.error('Error after headers sent:', err);
+            }
+            client.close();
+          });
+
+          downloadStream.on('end', () => client.close());
+
+          // Pipe the file contents straight to the HTTP response
+          return downloadStream.pipe(res);
         }
-
-        // (optional) set length so clients know when the stream ends
-        res.setHeader('Content-Length', buf.length);
-
-        return res.send(buf);
-
-
       } else {
-
-        // ── Stream large assets directly from GridFS ──
-        const client = new MongoClient(process.env.MONGODB_URI || 'mongodb://localhost:27017');
-        await client.connect();
-        const db = client.db(DB_NAME);
-        const bucket = new GridFSBucket(db, { bucketName: GRIDFS_BUCKET });
-
-        const downloadStream = bucket.openDownloadStreamByName(filename);
-
-        downloadStream.on('error', (err) => {
-          console.error('GridFS stream error:', err);
-          if (!res.headersSent) res.status(404).send('Asset not found');
-          client.close();
-        });
-
-        downloadStream.on('end', () => client.close());
-
-        // Pipe the file contents straight to the HTTP response
-        return downloadStream.pipe(res);
+        // Asset not found, pass to next middleware
+        res.status(404).send('Asset not found');
       }
-    } else {
-      res.status(404).send('Asset not found');
+    } catch (error) {
+      console.error('Error serving asset:', error);
+      // Pass error to next middleware
+      next(error);
     }
-  } catch (error) {
-    console.error('Error serving asset:', error);
-    res.status(500).send('Error retrieving asset');
-  }
+  }).catch(next); // Catch any unhandled promise rejections
 });
 
 // List of critical assets to preload (adjust based on your needs)
